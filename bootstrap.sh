@@ -89,12 +89,12 @@ read -p "Choice (1-5): " choice < /dev/tty
 case $choice in
     1)
         echo "📦 Installing core packages..."
-        sudo pacman -S --needed - < ~/packages/core.txt
+        grep -vE '^(#|$)' ~/packages/core.txt | sudo pacman -S --needed -
         ;;
     2)
         echo "📦 Installing core + GUI packages..."
-        sudo pacman -S --needed - < ~/packages/core.txt
-        sudo pacman -S --needed - < ~/packages/gui.txt
+        grep -vE '^(#|$)' ~/packages/core.txt | sudo pacman -S --needed -
+        grep -vE '^(#|$)' ~/packages/gui.txt | sudo pacman -S --needed -
         ;;
     3)
         if [ -z "$hardware_file" ]; then
@@ -102,21 +102,21 @@ case $choice in
             exit 1
         fi
         echo "📦 Installing core + GUI + hardware packages..."
-        sudo pacman -S --needed - < ~/packages/core.txt
-        sudo pacman -S --needed - < ~/packages/gui.txt
-        sudo pacman -S --needed - < "$hardware_file"
+        grep -vE '^(#|$)' ~/packages/core.txt | sudo pacman -S --needed -
+        grep -vE '^(#|$)' ~/packages/gui.txt | sudo pacman -S --needed -
+        grep -vE '^(#|$)' "$hardware_file" | sudo pacman -S --needed -
         ;;
     4)
         if [ -z "$hardware_file" ]; then
             echo "⚠️  No hardware profile selected, skipping hardware packages"
-            sudo pacman -S --needed - < ~/packages/core.txt
-            sudo pacman -S --needed - < ~/packages/gui.txt
+            grep -vE '^(#|$)' ~/packages/core.txt | sudo pacman -S --needed -
+            grep -vE '^(#|$)' ~/packages/gui.txt | sudo pacman -S --needed -
         else
-            sudo pacman -S --needed - < ~/packages/core.txt
-            sudo pacman -S --needed - < ~/packages/gui.txt
-            sudo pacman -S --needed - < "$hardware_file"
+            grep -vE '^(#|$)' ~/packages/core.txt | sudo pacman -S --needed -
+            grep -vE '^(#|$)' ~/packages/gui.txt | sudo pacman -S --needed -
+            grep -vE '^(#|$)' "$hardware_file" | sudo pacman -S --needed -
         fi
-        yay -S --needed - < ~/packages/aur.txt
+        grep -vE '^(#|$)' ~/packages/aur.txt | yay -S --needed -
         ;;
     5)
         echo "⏭️  Skipping package installation"

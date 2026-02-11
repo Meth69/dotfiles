@@ -4,7 +4,6 @@ firefox
 libreoffice-fresh
 discord
 telegram-desktop
-visual-studio-code-bin
 kate
 gwenview
 okular
@@ -14,9 +13,6 @@ konsole
 obsidian
 steam
 qbittorrent
-rustdesk-bin
-claude-code
-protonup-qt
 
 # KDE Plasma Desktop
 plasma-meta
