@@ -142,6 +142,8 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo ""
     echo "📦 Installing oh-my-zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    # Restore .zshrc from dotfiles repo (oh-my-zsh may have modified it)
+    $dotfiles checkout -- .zshrc
     echo "✅ oh-my-zsh installed"
 else
     echo "✅ oh-my-zsh already installed"
