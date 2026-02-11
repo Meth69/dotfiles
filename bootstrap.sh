@@ -127,7 +127,17 @@ case $choice in
         ;;
 esac
 
-# 6. Install oh-my-zsh if not present
+# 6. Set zsh as default shell
+if [ "$SHELL" != "/bin/zsh" ]; then
+    echo ""
+    echo "🐚 Setting zsh as default shell..."
+    chsh -s /bin/zsh
+    echo "✅ Default shell changed to zsh (logout/login to apply)"
+else
+    echo "✅ zsh is already the default shell"
+fi
+
+# 7. Install oh-my-zsh if not present
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo ""
     echo "📦 Installing oh-my-zsh..."
@@ -137,14 +147,14 @@ else
     echo "✅ oh-my-zsh already installed"
 fi
 
-# 7. Optional: Run claude-glm installer
+# 8. Optional: Run claude-glm installer
 echo ""
 read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 8. Reload shell
+# 9. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""

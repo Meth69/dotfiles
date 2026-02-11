@@ -121,7 +121,7 @@ eval "$(starship init zsh)"
 
 # Initialize zoxide (smart cd)
 eval "$(zoxide init zsh)"
-export PATH="$PATH:/home/lysergic/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
 
 
