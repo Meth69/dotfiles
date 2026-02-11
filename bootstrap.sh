@@ -127,14 +127,24 @@ case $choice in
         ;;
 esac
 
-# 6. Optional: Run claude-glm installer
+# 6. Install oh-my-zsh if not present
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo ""
+    echo "📦 Installing oh-my-zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    echo "✅ oh-my-zsh installed"
+else
+    echo "✅ oh-my-zsh already installed"
+fi
+
+# 7. Optional: Run claude-glm installer
 echo ""
 read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 7. Reload shell
+# 8. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
