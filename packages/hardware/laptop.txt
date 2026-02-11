@@ -1,0 +1,17 @@
+# Laptop-specific packages
+# Intel CPU/GPU drivers are auto-detected by Arch installer
+
+# WiFi (laptop)
+iwd
+wpa_supplicant
+wireless_tools
+
+# Disk tools
+smartmontools
+
+# iOS device mounting (only if needed)
+ifuse
+
+# Archiving
+7zip
+unrar

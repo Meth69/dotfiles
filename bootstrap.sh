@@ -49,12 +49,39 @@ else
     echo "✅ yay already installed"
 fi
 
-# 4. Ask what to install
+# 4. Hardware profile selection
+echo ""
+echo -e "${YELLOW}Select hardware profile:${NC}"
+echo "1) AMD Desktop (with GPU drivers)"
+echo "2) Intel Laptop (minimal - auto-detected)"
+echo "3) Skip hardware packages"
+read -p "Choice (1-3): " hw_choice
+
+hardware_file=""
+case $hw_choice in
+    1)
+        hardware_file="$HOME/packages/hardware/amd-desktop.txt"
+        echo "📦 Selected: AMD Desktop"
+        ;;
+    2)
+        hardware_file="$HOME/packages/hardware/laptop.txt"
+        echo "📦 Selected: Intel Laptop"
+        ;;
+    3)
+        echo "⏭️  Skipping hardware packages"
+        ;;
+    *)
+        echo "❌ Invalid choice"
+        exit 1
+        ;;
+esac
+
+# 5. Ask what to install
 echo ""
 echo -e "${YELLOW}What would you like to install?${NC}"
 echo "1) Core packages only"
 echo "2) Core + GUI"
-echo "3) Core + GUI + Hardware"
+echo "3) Core + GUI + Hardware (selected above)"
 echo "4) Everything (including AUR)"
 echo "5) Skip package installation"
 read -p "Choice (1-5): " choice
@@ -62,29 +89,34 @@ read -p "Choice (1-5): " choice
 case $choice in
     1)
         echo "📦 Installing core packages..."
-        sudo pacman -S --needed - < ~/packages-core.txt
+        sudo pacman -S --needed - < ~/packages/core.txt
         ;;
     2)
         echo "📦 Installing core + GUI packages..."
-        sudo pacman -S --needed - < ~/packages-core.txt
-        sudo pacman -S --needed - < ~/packages-gui.txt
+        sudo pacman -S --needed - < ~/packages/core.txt
+        sudo pacman -S --needed - < ~/packages/gui.txt
         ;;
     3)
+        if [ -z "$hardware_file" ]; then
+            echo "❌ No hardware profile selected!"
+            exit 1
+        fi
         echo "📦 Installing core + GUI + hardware packages..."
-        echo "⚠️  Review packages-hardware.txt first for your hardware!"
-        read -p "Press Enter to continue..."
-        sudo pacman -S --needed - < ~/packages-core.txt
-        sudo pacman -S --needed - < ~/packages-gui.txt
-        sudo pacman -S --needed - < ~/packages-hardware.txt
+        sudo pacman -S --needed - < ~/packages/core.txt
+        sudo pacman -S --needed - < ~/packages/gui.txt
+        sudo pacman -S --needed - < "$hardware_file"
         ;;
     4)
-        echo "📦 Installing everything..."
-        echo "⚠️  Review packages-hardware.txt first for your hardware!"
-        read -p "Press Enter to continue..."
-        sudo pacman -S --needed - < ~/packages-core.txt
-        sudo pacman -S --needed - < ~/packages-gui.txt
-        sudo pacman -S --needed - < ~/packages-hardware.txt
-        yay -S --needed - < ~/aur.txt
+        if [ -z "$hardware_file" ]; then
+            echo "⚠️  No hardware profile selected, skipping hardware packages"
+            sudo pacman -S --needed - < ~/packages/core.txt
+            sudo pacman -S --needed - < ~/packages/gui.txt
+        else
+            sudo pacman -S --needed - < ~/packages/core.txt
+            sudo pacman -S --needed - < ~/packages/gui.txt
+            sudo pacman -S --needed - < "$hardware_file"
+        fi
+        yay -S --needed - < ~/packages/aur.txt
         ;;
     5)
         echo "⏭️  Skipping package installation"
@@ -95,14 +127,14 @@ case $choice in
         ;;
 esac
 
-# 5. Optional: Run claude-glm installer
+# 6. Optional: Run claude-glm installer
 echo ""
 read -p "Install claude-glm wrappers? (y/n): " glm_choice
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 6. Reload shell
+# 7. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""

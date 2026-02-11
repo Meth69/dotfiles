@@ -1,0 +1,29 @@
+# Desktop applications
+chromium
+firefox
+libreoffice-fresh
+discord
+telegram-desktop
+visual-studio-code-bin
+kate
+gwenview
+okular
+dolphin
+kitty
+konsole
+obsidian
+steam
+qbittorrent
+rustdesk-bin
+claude-code
+protonup-qt
+
+# KDE Plasma Desktop
+plasma-meta
+plasma-workspace
+ark
+kimageformats
+libheif
+ffmpegthumbnailer
+noto-fonts-cjk
+ttf-fira-code

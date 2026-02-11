@@ -1,0 +1,8 @@
+# AUR packages (install with yay -S aur.txt)
+claude-code
+protonup-qt
+python-inputs
+python-steam
+rustdesk-bin
+visual-studio-code-bin
+yay
