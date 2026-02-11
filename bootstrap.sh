@@ -55,7 +55,7 @@ echo -e "${YELLOW}Select hardware profile:${NC}"
 echo "1) AMD Desktop (with GPU drivers)"
 echo "2) Intel Laptop (minimal - auto-detected)"
 echo "3) Skip hardware packages"
-read -p "Choice (1-3): " hw_choice
+read -p "Choice (1-3): " hw_choice < /dev/tty
 
 hardware_file=""
 case $hw_choice in
@@ -84,7 +84,7 @@ echo "2) Core + GUI"
 echo "3) Core + GUI + Hardware (selected above)"
 echo "4) Everything (including AUR)"
 echo "5) Skip package installation"
-read -p "Choice (1-5): " choice
+read -p "Choice (1-5): " choice < /dev/tty
 
 case $choice in
     1)
@@ -129,7 +129,7 @@ esac
 
 # 6. Optional: Run claude-glm installer
 echo ""
-read -p "Install claude-glm wrappers? (y/n): " glm_choice
+read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
