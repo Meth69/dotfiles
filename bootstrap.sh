@@ -143,7 +143,12 @@ if systemctl is-enabled --quiet systemd-networkd-wait-online.service 2>/dev/null
     echo "✅ Disabled systemd-networkd-wait-online (not needed with NetworkManager)"
 fi
 
-# 7. Set zsh as default shell
+# 7. Configure SDDM (theme + monitor fix for desktop)
+sddm_profile=""
+[ "$hw_choice" = "1" ] && sddm_profile="desktop"
+bash ~/scripts/setup-sddm.sh $sddm_profile
+
+# 8. Set zsh as default shell
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo ""
     echo "🐚 Setting zsh as default shell..."
@@ -153,7 +158,7 @@ else
     echo "✅ zsh is already the default shell"
 fi
 
-# 8. Install oh-my-zsh if not present
+# 9. Install oh-my-zsh if not present
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo ""
     echo "📦 Installing oh-my-zsh..."
@@ -165,21 +170,21 @@ else
     echo "✅ oh-my-zsh already installed"
 fi
 
-# 9. Optional: Run claude-glm installer
+# 10. Optional: Run claude-glm installer
 echo ""
 read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 10. Optional: Setup NFS mounts from TrueNAS
+# 11. Optional: Setup NFS mounts from TrueNAS
 echo ""
 read -p "Setup NFS mounts from TrueNAS? (y/n): " nfs_choice < /dev/tty
 if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 11. Reload shell
+# 12. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
