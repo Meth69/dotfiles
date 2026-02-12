@@ -127,7 +127,17 @@ case $choice in
         ;;
 esac
 
-# 6. Set zsh as default shell
+# 6. Enable NetworkManager (required for wifi/network tray icon)
+echo ""
+echo "🌐 Enabling NetworkManager..."
+if systemctl is-active --quiet NetworkManager; then
+    echo "✅ NetworkManager already running"
+else
+    sudo systemctl enable --now NetworkManager
+    echo "✅ NetworkManager enabled and started"
+fi
+
+# 7. Set zsh as default shell
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo ""
     echo "🐚 Setting zsh as default shell..."
@@ -137,7 +147,7 @@ else
     echo "✅ zsh is already the default shell"
 fi
 
-# 7. Install oh-my-zsh if not present
+# 8. Install oh-my-zsh if not present
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo ""
     echo "📦 Installing oh-my-zsh..."
@@ -149,21 +159,21 @@ else
     echo "✅ oh-my-zsh already installed"
 fi
 
-# 8. Optional: Run claude-glm installer
+# 9. Optional: Run claude-glm installer
 echo ""
 read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
 if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 9. Optional: Setup NFS mounts from TrueNAS
+# 10. Optional: Setup NFS mounts from TrueNAS
 echo ""
 read -p "Setup NFS mounts from TrueNAS? (y/n): " nfs_choice < /dev/tty
 if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 10. Reload shell
+# 11. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
