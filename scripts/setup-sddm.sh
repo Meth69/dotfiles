@@ -19,8 +19,8 @@ if [ "$HARDWARE_PROFILE" = "desktop" ]; then
 #!/bin/sh
 # Xsetup - run as root before the login dialog appears
 
-xrandr --output HDMI-A-1 --off
+xrandr --output HDMI-A-0 --off
 XSETUP
     sudo chmod +x /usr/share/sddm/scripts/Xsetup
-    echo "✅ SDDM will disable HDMI-A-1 on login screen"
+    echo "✅ SDDM will disable HDMI-A-0 on login screen"
 fi
