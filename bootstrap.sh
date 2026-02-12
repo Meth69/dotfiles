@@ -156,7 +156,14 @@ if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
     bash ~/scripts/claude-glm.sh
 fi
 
-# 9. Reload shell
+# 9. Optional: Setup NFS mounts from TrueNAS
+echo ""
+read -p "Setup NFS mounts from TrueNAS? (y/n): " nfs_choice < /dev/tty
+if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
+    bash ~/scripts/setup-nfs-mounts.sh
+fi
+
+# 10. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
