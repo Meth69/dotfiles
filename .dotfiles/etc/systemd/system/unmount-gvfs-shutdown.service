@@ -1,0 +1,15 @@
+[Unit]
+Description=Unmount gvfs shares before shutdown
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target poweroff.target
+
+[Service]
+Type=oneshot
+ExecStart=-/usr/bin/umount -t fuse.sshfs,cifs,nfs,nfs4 -a -f -l
+ExecStart=-/usr/bin/umount -R /run/user/1000/gvfs
+ExecStart=-/usr/bin/umount -R /home/lysergic/.local/share/gvfs
+TimeoutStartSec=3
+RemainAfterExit=yes
+
+[Install]
+WantedBy=shutdown.target reboot.target halt.target poweroff.target

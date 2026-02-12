@@ -137,6 +137,12 @@ else
     echo "✅ NetworkManager enabled and started"
 fi
 
+# Disable systemd-networkd-wait-online (conflicts with NetworkManager, causes 2min boot delay)
+if systemctl is-enabled --quiet systemd-networkd-wait-online.service 2>/dev/null; then
+    sudo systemctl disable systemd-networkd-wait-online.service
+    echo "✅ Disabled systemd-networkd-wait-online (not needed with NetworkManager)"
+fi
+
 # 7. Set zsh as default shell
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo ""
