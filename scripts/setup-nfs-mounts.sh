@@ -70,3 +70,15 @@ echo ""
 echo "✅ NFS mounts configured!"
 echo "   Mount points: ~/nas/nvme and ~/nas/spin"
 echo "   Shares will automount on access and unmount after 10 minutes idle"
+
+# Setup shutdown service to prevent long unmount timeouts
+echo ""
+echo "🔧 Setting up shutdown service for quick unmount..."
+SERVICE_FILE="$HOME/.dotfiles/etc/systemd/system/unmount-gvfs-shutdown.service"
+if [ -f "$SERVICE_FILE" ]; then
+    sudo cp "$SERVICE_FILE" /etc/systemd/system/
+    sudo systemctl enable unmount-gvfs-shutdown.service
+    echo "✅ Shutdown service installed and enabled"
+else
+    echo "⚠️  Shutdown service file not found in dotfiles, skipping..."
+fi
