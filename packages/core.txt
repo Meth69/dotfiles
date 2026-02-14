@@ -12,6 +12,7 @@ helix
 htop
 imagemagick
 jq
+kalk
 nano
 openssh
 ripgrep
