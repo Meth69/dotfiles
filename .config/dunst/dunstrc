@@ -1,0 +1,89 @@
+[global]
+    monitor = 0
+    follow = none
+
+    width = 380
+    height = (0, 200)
+    origin = top-right
+    offset = (16, 50)
+    scale = 0
+    notification_limit = 5
+
+    ### Progress bar ###
+    progress_bar = true
+    progress_bar_height = 6
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 150
+    progress_bar_max_width = 340
+    progress_bar_corner_radius = 3
+    progress_bar_corners = all
+
+    icon_corner_radius = 4
+    icon_corners = all
+
+    indicate_hidden = yes
+    separator_height = 1
+    padding = 12
+    horizontal_padding = 14
+    text_icon_padding = 10
+    frame_width = 2
+    gap_size = 8
+    separator_color = frame
+    sort = yes
+
+    ### Text ###
+    font = Monospace 11
+    line_height = 2
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = no
+
+    ### Icons ###
+    enable_recursive_icon_lookup = true
+    icon_theme = "Papirus-Dark, Adwaita"
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 48
+
+    ### History ###
+    sticky_history = yes
+    history_length = 20
+
+    ### Misc ###
+    dmenu = /usr/bin/wofi --dmenu -p dunst
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+    corner_radius = 10
+    corners = all
+    force_xwayland = false
+
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+[urgency_low]
+    background = "#1a1b26"
+    foreground = "#565f89"
+    frame_color = "#414868"
+    timeout = 5
+    default_icon = dialog-information
+
+[urgency_normal]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#7aa2f7"
+    timeout = 8
+    default_icon = dialog-information
+
+[urgency_critical]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#f7768e"
+    timeout = 0
+    default_icon = dialog-warning
