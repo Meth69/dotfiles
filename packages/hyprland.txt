@@ -20,6 +20,10 @@ papirus-icon-theme
 # File management (GTK, replaces Dolphin/Ark outside KDE)
 thunar
 file-roller
+thunar-archive-plugin
+thunar-volman
+tumbler
+gvfs
 
 # Qt theming (for use outside KDE session)
 kvantum
