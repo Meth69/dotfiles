@@ -11,7 +11,9 @@
     ],
     "modules-right": [
         "idle_inhibitor",
+        "network",
         "pulseaudio",
+        "custom/gpu",
         "cpu",
         "memory",
         "temperature",
@@ -48,6 +50,20 @@
         "on-click": "pkill wofi || ~/.config/waybar/scripts/switch-audio.sh",
         "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+",
         "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
+    },
+
+    "network": {
+        "interval": 2,
+        "format-ethernet": "󰈀 {bandwidthDownBytes} ↓ {bandwidthUpBytes} ↑",
+        "format-disconnected": "󰖪 disconnected",
+        "tooltip-format-ethernet": "{ipaddr} | {ifname}"
+    },
+
+    "custom/gpu": {
+        "exec": "~/.config/waybar/scripts/gpu.sh",
+        "return-type": "json",
+        "interval": 3,
+        "tooltip": true
     },
 
     "cpu": {
