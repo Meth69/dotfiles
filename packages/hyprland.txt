@@ -13,6 +13,7 @@ wl-clipboard
 cliphist
 grim
 slurp
+yad
 
 # Icons / cursor
 papirus-icon-theme
@@ -33,3 +34,5 @@ qt6ct
 
 # Audio
 pavucontrol
+playerctl
+lm_sensors
