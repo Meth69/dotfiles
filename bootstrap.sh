@@ -184,14 +184,7 @@ if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 12. Optional: Configure KDE (Polonium tiling)
-echo ""
-read -p "Configure KDE (Polonium tiling)? (y/n): " kde_choice < /dev/tty
-if [[ "$kde_choice" == "y" || "$kde_choice" == "Y" ]]; then
-    bash ~/scripts/setup-kde.sh
-fi
-
-# 13. Reload shell
+# 12. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""

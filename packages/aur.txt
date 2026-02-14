@@ -1,6 +1,5 @@
 # AUR packages (install with yay)
 claude-code
-kwin-polonium
 protonup-qt
 python-inputs
 python-steam
