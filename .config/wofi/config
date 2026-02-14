@@ -1,0 +1,7 @@
+width=480
+height=360
+prompt=Search
+allow_markup=true
+insensitive=true
+hide_scroll=true
+no_actions=true

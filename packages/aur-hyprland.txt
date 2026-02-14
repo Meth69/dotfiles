@@ -1,0 +1,4 @@
+# AUR packages for Hyprland
+wlogout
+tokyonight-gtk-theme-git
+bibata-cursor-theme-bin

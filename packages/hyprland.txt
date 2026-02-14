@@ -1,0 +1,31 @@
+# Hyprland compositor
+hyprland
+waybar
+wofi
+dunst
+hyprpaper
+hyprlock
+hypridle
+xdg-desktop-portal-hyprland
+
+# Wayland utilities
+wl-clipboard
+cliphist
+grim
+slurp
+
+# Icons / cursor
+papirus-icon-theme
+
+# File management (GTK, replaces Dolphin/Ark outside KDE)
+thunar
+file-roller
+
+# Qt theming (for use outside KDE session)
+kvantum
+kvantum-qt5
+qt5ct
+qt6ct
+
+# Audio
+pavucontrol

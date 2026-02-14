@@ -184,10 +184,13 @@ if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 12. Optional: Setup Hyprland theming (GTK/Qt)
+# 12. Optional: Install Hyprland
 echo ""
-read -p "Setup Hyprland theming (GTK/Qt)? (y/n): " hypr_choice < /dev/tty
+read -p "Install Hyprland? (y/n): " hypr_choice < /dev/tty
 if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
+    echo "📦 Installing Hyprland packages..."
+    grep -vE '^(#|$)' ~/packages/hyprland.txt | sudo pacman -S --needed -
+    grep -vE '^(#|$)' ~/packages/aur-hyprland.txt | yay -S --needed -
     bash ~/scripts/setup-hyprland.sh
 fi
 
