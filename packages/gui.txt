@@ -38,3 +38,9 @@ grim
 slurp
 papirus-icon-theme
 xdg-desktop-portal-hyprland
+thunar
+file-roller
+kvantum
+kvantum-qt5
+qt5ct
+qt6ct

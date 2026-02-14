@@ -184,7 +184,14 @@ if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 12. Reload shell
+# 12. Optional: Setup Hyprland theming (GTK/Qt)
+echo ""
+read -p "Setup Hyprland theming (GTK/Qt)? (y/n): " hypr_choice < /dev/tty
+if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
+    bash ~/scripts/setup-hyprland.sh
+fi
+
+# 13. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
