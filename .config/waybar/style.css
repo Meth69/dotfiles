@@ -39,11 +39,15 @@ window#waybar {
 /* Right-side modules */
 #idle_inhibitor,
 #pulseaudio,
-#cpu,
+#custom-media,
+#custom-gpu,
+#custom-cpu,
 #memory,
+#disk,
 #temperature,
 #clock,
-#tray {
+#tray,
+#custom-updates {
     padding: 0 10px;
     margin: 4px 2px;
     border-radius: 6px;
@@ -59,16 +63,24 @@ window#waybar {
     color: #7dcfff;
 }
 
+#custom-media {
+    color: #f7768e;
+}
+
 #pulseaudio.muted {
     color: #565f89;
 }
 
-#cpu {
+#custom-cpu {
     color: #9ece6a;
 }
 
 #memory {
     color: #bb9af7;
+}
+
+#disk {
+    color: #7dcfff;
 }
 
 #temperature {
@@ -81,6 +93,18 @@ window#waybar {
 
 #clock {
     color: #7aa2f7;
+}
+
+#custom-updates {
+    color: #e0af68;
+}
+
+#custom-updates.updates {
+    color: #ff9e64;
+}
+
+#custom-updates.updated {
+    color: #9ece6a;
 }
 
 #tray {

@@ -11,11 +11,14 @@
     ],
     "modules-right": [
         "network",
+        "custom/updates",
         "idle_inhibitor",
+        "custom/media",
         "pulseaudio",
         "custom/gpu",
-        "cpu",
+        "custom/cpu",
         "memory",
+        "disk",
         "temperature",
         "clock",
         "tray",
@@ -53,6 +56,15 @@
         "tooltip-format-deactivated": "Idle inhibitor: OFF"
     },
 
+    "custom/media": {
+        "exec": "playerctl metadata --format '{{xesam:title}} - {{xesam:artist}}' 2>/dev/null || echo 'No media'",
+        "interval": 1,
+        "max-length": 40,
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous"
+    },
+
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-muted": "󰝟 muted",
@@ -78,8 +90,17 @@
         "tooltip": true
     },
 
-    "cpu": {
-        "format": "󰍛 {usage}%",
+    "custom/updates": {
+        "exec": "~/.config/waybar/scripts/updates.sh",
+        "return-type": "json",
+        "interval": 3600,
+        "format": "{}",
+        "tooltip": true
+    },
+
+    "custom/cpu": {
+        "exec": "~/.config/waybar/scripts/cpu.sh",
+        "return-type": "json",
         "interval": 3,
         "tooltip": true
     },
@@ -88,6 +109,12 @@
         "format": "󰘚 {percentage}%",
         "tooltip-format": "{used:0.1f}G / {total:0.1f}G used",
         "interval": 5
+    },
+
+    "disk": {
+        "format": "󰋊 {percentage_used}%",
+        "tooltip-format": "{used} / {total} used ({path})",
+        "interval": 180
     },
 
     "temperature": {
@@ -100,7 +127,8 @@
     "clock": {
         "format": "󰥔 {:%H:%M}",
         "format-alt": "󰃭 {:%A, %d %B %Y}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
     },
 
     "tray": {
