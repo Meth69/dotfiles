@@ -1,0 +1,94 @@
+* {
+    font-family: "Symbols Nerd Font", sans-serif;
+    font-size: 14px;
+}
+
+window#waybar {
+    background-color: rgba(26, 27, 38, 0.85);
+    color: #c0caf5;
+    border-bottom: 2px solid rgba(65, 72, 104, 0.5);
+}
+
+/* Workspaces */
+#workspaces button {
+    padding: 0 8px;
+    color: #565f89;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+#workspaces button:hover {
+    background: rgba(122, 162, 247, 0.2);
+}
+
+#workspaces button.active {
+    color: #7aa2f7;
+    box-shadow: inset 0 -2px #7aa2f7;
+}
+
+#workspaces button.urgent {
+    color: #f7768e;
+}
+
+/* Window title */
+#window {
+    color: #a9b1d6;
+}
+
+/* Right-side modules */
+#idle_inhibitor,
+#pulseaudio,
+#cpu,
+#memory,
+#temperature,
+#clock,
+#tray {
+    padding: 0 10px;
+    margin: 4px 2px;
+    border-radius: 6px;
+    background-color: rgba(65, 72, 104, 0.3);
+}
+
+#idle_inhibitor.activated {
+    background-color: rgba(122, 162, 247, 0.3);
+    color: #7aa2f7;
+}
+
+#pulseaudio {
+    color: #7dcfff;
+}
+
+#pulseaudio.muted {
+    color: #565f89;
+}
+
+#cpu {
+    color: #9ece6a;
+}
+
+#memory {
+    color: #bb9af7;
+}
+
+#temperature {
+    color: #e0af68;
+}
+
+#temperature.critical {
+    color: #f7768e;
+}
+
+#clock {
+    color: #7aa2f7;
+}
+
+#tray {
+    color: #c0caf5;
+}
+
+#custom-power {
+    color: #f7768e;
+    font-size: 16px;
+    margin-right: 12px;
+}

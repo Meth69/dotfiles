@@ -5,3 +5,6 @@ python-inputs
 python-steam
 rustdesk-bin
 visual-studio-code-bin
+wlogout
+tokyonight-gtk-theme-git
+bibata-cursor-theme-bin

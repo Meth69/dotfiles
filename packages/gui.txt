@@ -23,3 +23,18 @@ libheif
 ffmpegthumbnailer
 noto-fonts-cjk
 ttf-fira-code
+
+# Hyprland
+hyprland
+waybar
+wofi
+dunst
+hyprpaper
+hyprlock
+hypridle
+wl-clipboard
+cliphist
+grim
+slurp
+papirus-icon-theme
+xdg-desktop-portal-hyprland
