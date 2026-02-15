@@ -194,7 +194,15 @@ if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
     bash ~/scripts/setup-hyprland.sh
 fi
 
-# 13. Reload shell
+# 13. Install yazi packages (flavors, plugins)
+if command -v ya &> /dev/null; then
+    echo ""
+    echo "📦 Installing yazi packages..."
+    ya pkg install
+    echo "✅ Yazi packages installed"
+fi
+
+# 14. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
