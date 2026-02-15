@@ -9,15 +9,14 @@
     "hyprland/window"
   ],
   "modules-right": [
-    "network",
+    "custom/network",
     "custom/updates",
     "idle_inhibitor",
     "custom/media",
     "pulseaudio",
     "custom/gpu",
     "custom/cpu",
-    "memory",
-    "disk",
+    "custom/disk-memory",
     "temperature",
     "clock",
     "tray",
@@ -80,6 +79,12 @@
     "format-disconnected": "\udb81\uddaa disconnected",
     "tooltip-format-ethernet": "{ipaddr} | {ifname}"
   },
+  "custom/network": {
+    "exec": "~/.config/waybar/scripts/network.sh",
+    "return-type": "json",
+    "interval": 2,
+    "tooltip": true
+  },
   "custom/gpu": {
     "exec": "~/.config/waybar/scripts/gpu.sh",
     "return-type": "json",
@@ -108,6 +113,12 @@
     "format": "\udb80\udeca {percentage_used}%",
     "tooltip-format": "{used} / {total} used ({path})",
     "interval": 180
+  },
+  "custom/disk-memory": {
+    "exec": "~/.config/waybar/scripts/disk-memory.sh",
+    "return-type": "json",
+    "interval": 10,
+    "tooltip": true
   },
   "temperature": {
     "critical-threshold": 80,

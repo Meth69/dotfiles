@@ -45,6 +45,7 @@ window#waybar {
 #custom-cpu,
 #memory,
 #disk,
+#custom-disk-memory,
 #temperature,
 #clock,
 #tray,
@@ -53,6 +54,28 @@ window#waybar {
     margin: 4px 2px;
     border-radius: 6px;
     background-color: rgba(65, 72, 104, 0.3);
+}
+
+#network,
+#custom-network {
+    padding: 0 10px;
+    margin: 4px 2px;
+    border-radius: 6px;
+    background-color: rgba(65, 72, 104, 0.3);
+    color: #7dcfff;
+}
+
+/* Fix width for modules with variable text */
+#custom-network {
+    min-width: 145px;
+}
+
+#custom-cpu {
+    min-width: 85px;
+}
+
+#custom-gpu {
+    min-width: 85px;
 }
 
 #idle_inhibitor.activated {
@@ -81,6 +104,10 @@ window#waybar {
 }
 
 #disk {
+    color: #7dcfff;
+}
+
+#custom-disk-memory {
     color: #7dcfff;
 }
 
