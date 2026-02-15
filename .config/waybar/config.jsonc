@@ -1,144 +1,142 @@
 {
-    "layer": "top",
-    "height": 34,
-    "spacing": 8,
-
-    "modules-left": [
-        "hyprland/workspaces"
-    ],
-    "modules-center": [
-        "hyprland/window"
-    ],
-    "modules-right": [
-        "network",
-        "custom/updates",
-        "idle_inhibitor",
-        "custom/media",
-        "pulseaudio",
-        "custom/gpu",
-        "custom/cpu",
-        "memory",
-        "disk",
-        "temperature",
-        "clock",
-        "tray",
-        "custom/power"
-    ],
-
-    "hyprland/workspaces": {
-        "format": "{icon}",
-        "format-icons": {
-            "1": "1",
-            "2": "2",
-            "3": "󰈹",
-            "4": "4",
-            "5": "5",
-            "6": "6",
-            "7": "7",
-            "8": "8",
-            "9": "9",
-            "10": "10"
-        },
-        "on-click": "activate"
+  "layer": "top",
+  "height": 34,
+  "spacing": 8,
+  "modules-left": [
+    "hyprland/workspaces"
+  ],
+  "modules-center": [
+    "hyprland/window"
+  ],
+  "modules-right": [
+    "network",
+    "custom/updates",
+    "idle_inhibitor",
+    "custom/media",
+    "pulseaudio",
+    "custom/gpu",
+    "custom/cpu",
+    "memory",
+    "disk",
+    "temperature",
+    "clock",
+    "tray",
+    "custom/power",
+    "custom/hyprwhspr"
+  ],
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "\udb80\ude39",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "10"
     },
-
-    "hyprland/window": {
-        "max-length": 60
+    "on-click": "activate"
+  },
+  "hyprland/window": {
+    "max-length": 60
+  },
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "\udb80\udd76",
+      "deactivated": "\udb83\udfaa"
     },
-
-    "idle_inhibitor": {
-        "format": "{icon}",
-        "format-icons": {
-            "activated": "󰅶",
-            "deactivated": "󰾪"
-        },
-        "tooltip-format-activated": "Idle inhibitor: ON (screen won't turn off)",
-        "tooltip-format-deactivated": "Idle inhibitor: OFF"
+    "tooltip-format-activated": "Idle inhibitor: ON (screen won't turn off)",
+    "tooltip-format-deactivated": "Idle inhibitor: OFF"
+  },
+  "custom/media": {
+    "exec": "playerctl metadata --format '{{xesam:title}} - {{xesam:artist}}' 2>/dev/null || echo 'No media'",
+    "interval": 1,
+    "max-length": 40,
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "\udb81\udf5f muted",
+    "format-icons": {
+      "default": [
+        "\udb81\udd7f",
+        "\udb81\udd80",
+        "\udb81\udd7e"
+      ]
     },
-
-    "custom/media": {
-        "exec": "playerctl metadata --format '{{xesam:title}} - {{xesam:artist}}' 2>/dev/null || echo 'No media'",
-        "interval": 1,
-        "max-length": 40,
-        "on-click": "playerctl play-pause",
-        "on-scroll-up": "playerctl next",
-        "on-scroll-down": "playerctl previous"
-    },
-
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-muted": "󰝟 muted",
-        "format-icons": {
-            "default": ["󰕿", "󰖀", "󰕾"]
-        },
-        "on-click": "pkill wofi || ~/.config/waybar/scripts/switch-audio.sh",
-        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
-    },
-
-    "network": {
-        "interval": 2,
-        "format-ethernet": "󰈀 {bandwidthDownBytes} ↓ {bandwidthUpBytes} ↑",
-        "format-disconnected": "󰖪 disconnected",
-        "tooltip-format-ethernet": "{ipaddr} | {ifname}"
-    },
-
-    "custom/gpu": {
-        "exec": "~/.config/waybar/scripts/gpu.sh",
-        "return-type": "json",
-        "interval": 3,
-        "tooltip": true
-    },
-
-    "custom/updates": {
-        "exec": "~/.config/waybar/scripts/updates.sh",
-        "return-type": "json",
-        "interval": 3600,
-        "format": "{}",
-        "tooltip": true
-    },
-
-    "custom/cpu": {
-        "exec": "~/.config/waybar/scripts/cpu.sh",
-        "return-type": "json",
-        "interval": 3,
-        "tooltip": true
-    },
-
-    "memory": {
-        "format": "󰘚 {percentage}%",
-        "tooltip-format": "{used:0.1f}G / {total:0.1f}G used",
-        "interval": 5
-    },
-
-    "disk": {
-        "format": "󰋊 {percentage_used}%",
-        "tooltip-format": "{used} / {total} used ({path})",
-        "interval": 180
-    },
-
-    "temperature": {
-        "critical-threshold": 80,
-        "format": "{icon} {temperatureC}°C",
-        "format-critical": "{icon} {temperatureC}°C",
-        "format-icons": ["", "", "", "", ""]
-    },
-
-    "clock": {
-        "format": "󰥔 {:%H:%M}",
-        "format-alt": "󰃭 {:%A, %d %B %Y}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
-    },
-
-    "tray": {
-        "icon-size": 18,
-        "spacing": 8
-    },
-
-    "custom/power": {
-        "format": "⏻",
-        "tooltip": false,
-        "on-click": "wlogout -b 5 -c 0 -r 0 -T 600 -B 600 --layout ~/.config/wlogout/layout -C ~/.config/wlogout/style.css"
-    }
+    "on-click": "pkill wofi || ~/.config/waybar/scripts/switch-audio.sh",
+    "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
+  },
+  "network": {
+    "interval": 2,
+    "format-ethernet": "\udb80\ude00 {bandwidthDownBytes} \u2193 {bandwidthUpBytes} \u2191",
+    "format-disconnected": "\udb81\uddaa disconnected",
+    "tooltip-format-ethernet": "{ipaddr} | {ifname}"
+  },
+  "custom/gpu": {
+    "exec": "~/.config/waybar/scripts/gpu.sh",
+    "return-type": "json",
+    "interval": 3,
+    "tooltip": true
+  },
+  "custom/updates": {
+    "exec": "~/.config/waybar/scripts/updates.sh",
+    "return-type": "json",
+    "interval": 3600,
+    "format": "{}",
+    "tooltip": true
+  },
+  "custom/cpu": {
+    "exec": "~/.config/waybar/scripts/cpu.sh",
+    "return-type": "json",
+    "interval": 3,
+    "tooltip": true
+  },
+  "memory": {
+    "format": "\udb81\ude1a {percentage}%",
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G used",
+    "interval": 5
+  },
+  "disk": {
+    "format": "\udb80\udeca {percentage_used}%",
+    "tooltip-format": "{used} / {total} used ({path})",
+    "interval": 180
+  },
+  "temperature": {
+    "critical-threshold": 80,
+    "format": "{icon} {temperatureC}\u00b0C",
+    "format-critical": "{icon} {temperatureC}\u00b0C",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  "clock": {
+    "format": "\udb82\udd54 {:%H:%M}",
+    "format-alt": "\udb80\udced {:%A, %d %B %Y}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
+  },
+  "tray": {
+    "icon-size": 18,
+    "spacing": 8
+  },
+  "custom/power": {
+    "format": "\u23fb",
+    "tooltip": false,
+    "on-click": "wlogout -b 5 -c 0 -r 0 -T 600 -B 600 --layout ~/.config/wlogout/layout -C ~/.config/wlogout/style.css"
+  },
+  "include": [
+    "/home/lysergic/.config/waybar/hyprwhspr-module.jsonc"
+  ]
 }
