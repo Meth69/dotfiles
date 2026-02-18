@@ -170,21 +170,14 @@ else
     echo "✅ oh-my-zsh already installed"
 fi
 
-# 10. Optional: Run claude-glm installer
-echo ""
-read -p "Install claude-glm wrappers? (y/n): " glm_choice < /dev/tty
-if [[ "$glm_choice" == "y" || "$glm_choice" == "Y" ]]; then
-    bash ~/scripts/claude-glm.sh
-fi
-
-# 11. Optional: Setup NFS mounts from TrueNAS
+# 10. Optional: Setup NFS mounts from TrueNAS
 echo ""
 read -p "Setup NFS mounts from TrueNAS? (y/n): " nfs_choice < /dev/tty
 if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 12. Optional: Install Hyprland
+# 11. Optional: Install Hyprland
 echo ""
 read -p "Install Hyprland? (y/n): " hypr_choice < /dev/tty
 if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
@@ -194,7 +187,7 @@ if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
     bash ~/scripts/setup-hyprland.sh
 fi
 
-# 13. Install yazi packages (flavors, plugins)
+# 12. Install yazi packages (flavors, plugins)
 if command -v ya &> /dev/null; then
     echo ""
     echo "📦 Installing yazi packages..."
@@ -202,7 +195,7 @@ if command -v ya &> /dev/null; then
     echo "✅ Yazi packages installed"
 fi
 
-# 14. Reload shell
+# 13. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
