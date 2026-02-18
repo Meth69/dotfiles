@@ -195,7 +195,10 @@ if command -v ya &> /dev/null; then
     echo "✅ Yazi packages installed"
 fi
 
-# 13. Reload shell
+# 13. Setup Claude Code configuration
+bash ~/scripts/setup-claude.sh
+
+# 14. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
