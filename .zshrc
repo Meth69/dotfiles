@@ -123,11 +123,6 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
-
-
-# Claude Code Model Switcher Aliases
-alias cc='claude'
-alias ccg='claude-glm'
-alias ccf='claude-glm-fast'
-alias cca='claude-anthropic'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+
+ alias glmcode="ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic ANTHROPIC_AUTH_TOKEN=REDACTED API_TIMEOUT_MS=3000000 claude --settings $HOME/.claude/settings-glm.json"
