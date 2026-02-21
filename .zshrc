@@ -115,6 +115,7 @@ source $ZSH/oh-my-zsh.sh
 # Environment variables
 export SUDO_ASKPASS=/usr/bin/ksshaskpass
 export TERMINAL=kitty
+export EDITOR=hx
 
 # Initialize starship prompt
 eval "$(starship init zsh)"
@@ -125,4 +126,4 @@ export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
- alias glmcode="ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic ANTHROPIC_AUTH_TOKEN=4bf4065fb5504a1f8a3300f5c7ed3121.Tfkuu6OJuvyXCfTF API_TIMEOUT_MS=3000000 claude --settings $HOME/.claude/settings-glm.json"
+alias ccg="ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic ANTHROPIC_AUTH_TOKEN=4bf4065fb5504a1f8a3300f5c7ed3121.Tfkuu6OJuvyXCfTF API_TIMEOUT_MS=3000000 claude --settings $HOME/.claude/settings-glm.json"
