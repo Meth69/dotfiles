@@ -170,14 +170,21 @@ else
     echo "✅ oh-my-zsh already installed"
 fi
 
-# 10. Optional: Setup NFS mounts from TrueNAS
+# 10. Optional: Setup SSH for NAS access
+echo ""
+read -p "Setup SSH key and config for NAS access? (y/n): " ssh_choice < /dev/tty
+if [[ "$ssh_choice" == "y" || "$ssh_choice" == "Y" ]]; then
+    bash ~/scripts/setup-ssh.sh
+fi
+
+# 11. Optional: Setup NFS mounts from TrueNAS
 echo ""
 read -p "Setup NFS mounts from TrueNAS? (y/n): " nfs_choice < /dev/tty
 if [[ "$nfs_choice" == "y" || "$nfs_choice" == "Y" ]]; then
     bash ~/scripts/setup-nfs-mounts.sh
 fi
 
-# 11. Optional: Install Hyprland
+# 12. Optional: Install Hyprland
 echo ""
 read -p "Install Hyprland? (y/n): " hypr_choice < /dev/tty
 if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
@@ -187,7 +194,7 @@ if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
     bash ~/scripts/setup-hyprland.sh
 fi
 
-# 12. Install yazi packages (flavors, plugins)
+# 13. Install yazi packages (flavors, plugins)
 if command -v ya &> /dev/null; then
     echo ""
     echo "📦 Installing yazi packages..."
@@ -195,10 +202,10 @@ if command -v ya &> /dev/null; then
     echo "✅ Yazi packages installed"
 fi
 
-# 13. Setup Claude Code configuration
+# 14. Setup Claude Code configuration
 bash ~/scripts/setup-claude.sh
 
-# 14. Reload shell
+# 15. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
