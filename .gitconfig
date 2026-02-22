@@ -1,2 +1,5 @@
 [credential]
 	helper = !gh auth git-credential
+[user]
+	name = Meth69
+	email = Meth69@users.noreply.github.com

@@ -41,6 +41,11 @@ ssh nas "midclt call core.get_methods | jq -r 'keys[] | select(startswith(\"app.
 ssh nas "sudo docker ps"
 ```
 
+## midclt Usage Rules
+1. **Unfamiliar method?** Read the API definition first: `ssh nas "cat /usr/lib/python3/dist-packages/middlewared/api/v25_04_0/<method>.py"`
+2. **Parameter error?** Check the API definition immediately - don't guess formats
+3. **Use `-j` flag** for job progress (e.g., `midclt call -j app.create ...`)
+
 ### App Management via midclt (no sudo needed)
 | Method | Description |
 |--------|-------------|
@@ -50,9 +55,53 @@ ssh nas "sudo docker ps"
 | `app.stop <name>` | Stop an app |
 | `app.redeploy <name>` | Redeploy an app |
 | `app.upgrade <name>` | Upgrade an app |
+| `app.create` | Install a new app from catalog |
+| `app.delete <name>` | Remove an app |
+| `app.update <name>` | Update app configuration |
 | `app.container_ids <name>` | Get container IDs |
 | `app.used_ports` | List all used ports |
 | `app.image.query` | List docker images |
+| `catalog.apps` | List all available catalog apps |
+| `catalog.trains` | List available trains (stable, community, etc.) |
+
+## Installing Apps via CLI
+
+### Discover Available Apps
+```bash
+# List all apps in catalog (by train)
+ssh nas "midclt call catalog.apps {}" | jq '.stable | keys[]'      # stable train
+ssh nas "midclt call catalog.apps {}" | jq '.community | keys[]'   # community train
+
+# Check which train an app is in
+ssh nas "midclt call catalog.apps {}" | jq '.community.navidrome'
+```
+
+### Install an App
+```bash
+ssh nas "midclt call -j app.create '{
+  \"catalog_app\": \"<app_name>\",
+  \"app_name\": \"<instance_name>\",
+  \"train\": \"<train_name>\",
+  \"version\": \"<chart_version>\",
+  \"values\": {}
+}'"
+```
+
+### app.create Parameters
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `catalog_app` | Yes* | - | App name in catalog (e.g., "navidrome") |
+| `app_name` | Yes | - | Instance name (alphanumeric + hyphens, must start with letter) |
+| `train` | No | `stable` | **Must set to `community` for community apps** |
+| `version` | No | `latest` | Chart version |
+| `values` | No | `{}` | Configuration overrides |
+
+**GOTCHA**: The `train` parameter defaults to `stable`. If an app only exists in `community`, you MUST set `train: "community"` or installation will fail.
+
+### Example: Install Navidrome
+```bash
+ssh nas "midclt call -j app.create '{\"catalog_app\": \"navidrome\", \"app_name\": \"navidrome\", \"train\": \"community\", \"values\": {}}'"
+```
 
 ## Storage Pools
 - **nvmepool** (~69GB NVMe SSD) - Primary/fast storage (preferred)
@@ -148,6 +197,7 @@ Apps run as Docker containers. Most management via web GUI; use CLI for AI tasks
 | immich | 2283 |
 | piwigo | 8080 |
 | open-webui | 3000 |
+| navidrome | 30043 |
 | nginx-proxy-manager | 80, 443, 81 |
 
 ### Stopped
