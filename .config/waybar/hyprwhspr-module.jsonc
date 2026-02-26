@@ -1,0 +1,12 @@
+{
+  "custom/hyprwhspr": {
+    "format": "{}",
+    "exec": "/home/lysergic/.local/bin/hyprwhspr-tray-wrapper.sh status",
+    "interval": 1,
+    "return-type": "json",
+    "exec-on-event": true,
+    "on-click": "/usr/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh record",
+    "on-click-right": "/home/lysergic/.local/bin/hyprwhspr-translate-toggle.sh toggle",
+    "tooltip": true
+  }
+}
