@@ -1,7 +1,7 @@
 # NAS Documentation
 
 ## System Info
-- **OS**: TrueNAS Scale Fangtooth 25.04
+- **OS**: TrueNAS Scale Goldeye 25.10.2.1
 - **Container Runtime**: Docker (Fangtooth removed k3s/kubernetes)
 - **IP**: 192.168.178.100
 - **Hostname**: truenas
@@ -42,7 +42,7 @@ ssh nas "sudo docker ps"
 ```
 
 ## midclt Usage Rules
-1. **Unfamiliar method?** Read the API definition first: `ssh nas "cat /usr/lib/python3/dist-packages/middlewared/api/v25_04_0/<method>.py"`
+1. **Unfamiliar method?** Read the API definition first: `ssh nas "cat /usr/lib/python3/dist-packages/middlewared/api/v25_10_2/<method>.py"`
 2. **Parameter error?** Check the API definition immediately - don't guess formats
 3. **Use `-j` flag** for job progress (e.g., `midclt call -j app.create ...`)
 
@@ -55,6 +55,7 @@ ssh nas "sudo docker ps"
 | `app.stop <name>` | Stop an app |
 | `app.redeploy <name>` | Redeploy an app |
 | `app.upgrade <name>` | Upgrade an app |
+| `app.upgrade_summary <name> '{}'` | Check if upgrade available (returns `upgrade_version`) |
 | `app.create` | Install a new app from catalog |
 | `app.delete <name>` | Remove an app |
 | `app.update <name>` | Update app configuration |
@@ -104,8 +105,8 @@ ssh nas "midclt call -j app.create '{\"catalog_app\": \"navidrome\", \"app_name\
 ```
 
 ## Storage Pools
-- **nvmepool** (~69GB NVMe SSD) - Primary/fast storage (preferred)
-- **spinningpool** (HDD) - Bulk storage for long-term archives
+- **nvmepool** (~896GB NVMe SSD, Samsung 980 1TB) - Primary/fast storage (preferred). **Keep below 80% usage** (ZFS performance degrades above this)
+- **spinningpool** (~7.3TB HDD mirror, 2x Seagate Exos 8TB) - Bulk storage for long-term archives
 
 ## Media Storage Workflow (IMPORTANT)
 - **NVMe is the default** - User prefers using NVMe as much as possible
@@ -161,10 +162,12 @@ This sets ownership to `lysergic:apps` and permissions to `775` (owner+group can
 | `recyclarr/` | Sonarr/Radarr config sync |
 | `composefiles/` | Docker compose files |
 | `nginx-proxy-manager/` | Reverse proxy configs |
+| `scripts/` | Custom maintenance scripts (e.g. ntfy alert forwarder) |
 
 ### `/mnt/spinningpool/` - Archive/Bulk Storage
 | Directory | Purpose |
 |-----------|---------|
+| `music/` | Music library for Navidrome |
 | `movies/` | LONG-TERM movie keepers (62+ titles, includes 4K/HDR) |
 | `tvshows/` | LONG-TERM TV keepers (Attack on Titan, Game of Thrones, Better Call Saul) |
 | `aks/` | Photo archive (194 folders, personal/family photos by event/date) |
@@ -199,19 +202,78 @@ Apps run as Docker containers. Most management via web GUI; use CLI for AI tasks
 | open-webui | 3000 |
 | navidrome | 30043 |
 | nginx-proxy-manager | 80, 443, 81 |
+| paperless-ngx | 8000 |
 
 ### Stopped
 wger, factorio, wg-easy, dockge, homepage, actual-budget, kosync, dnstt
 
-### Crashed
-paperless-ngx
+### Custom Apps (docker-compose deployed)
+| App | Port | Containers |
+|-----|------|------------|
+| paperless-ngx | 8000 | paperless-ngx + postgres:17 + redis:7 |
 
 ## Access
-- **TrueNAS Web UI**: `https://192.168.178.100:444` or `http://192.168.178.100:81`
+- **TrueNAS Web UI**: `https://192.168.178.100:444` (HTTPS redirect enabled)
 - **Nginx Proxy Manager**: Handles domain routing (configs at `/mnt/nvmepool/nvmeshare/nginx-proxy-manager/`)
+  - `jelly.alcared.it` → Jellyfin (public)
+  - `kavita.alcared.it` → Kavita (public)
+  - `ding.alcared.it` → Navidrome (public)
+  - `seer.alcared.it` → Jellyseerr (public, multi-user)
+  - `fit.alcared.it` → wger (STOPPED — broken proxy, remove or update)
+
+
+## Monitoring
+- **ntfy.sh alerts** (topic: `lysacidnasalerts6-9`): TrueNAS WARNING/CRITICAL/EMERGENCY via cron every 5 min (`truenas-ntfy-alerts.sh`); NVMe >90% via cron every 30 min (`nvme-disk-alert.sh`, fires once until resolved). Scripts in `/mnt/nvmepool/nvmeshare/scripts/`
+- **Weekly app auto-update** (cron ID 7, Sat 3AM): `app-auto-update.sh` — upgrades all RUNNING apps, logs to `scripts/app-update.log`, notifies ntfy on updates or failures (silent if nothing to do)
+- **SMART tests**: Weekly SHORT (all disks, Sun 2AM), monthly LONG (HDDs, 1st 3AM)
+- **ZFS snapshots**: nvmeshare every 4h (7d retention, recursive — covers all app data)
+- **ZFS scrubs**: Both pools weekly (Sunday)
+
+## Security Hardening Applied
+- SSH: Weak ciphers disabled (NONE, AES128-CBC removed), key-only auth
+- NFS: All 16 exports restricted to `192.168.178.0/24`
+- HTTPS redirect enabled for TrueNAS Web UI
+- Audit log retention: 30 days (max)
+- **CrowdSec** (custom app): Parses NPM logs, bans malicious IPs via iptables DOCKER-USER + INPUT chains. Notifies ntfy on ban. Config at `/mnt/nvmepool/nvmeshare/crowdsec/`
+  - Engine: `crowdsecurity/crowdsec:latest`, API on `127.0.0.1:8085`
+  - Bouncer: `ghcr.io/shgew/cs-firewall-bouncer-docker`, iptables mode, targets INPUT + DOCKER-USER
+  - Collection: `crowdsecurity/nginx-proxy-manager`
+  - **NOTE**: Do NOT add nftables `forward` hook — breaks Docker networking on TrueNAS (iptables-nft conflict)
+
+### Still Needs Web UI Configuration
+- Enable 2FA/TOTP for admin account (Credentials > Users > admin)
+- Enable authentication on Radarr, Sonarr, Prowlarr, Bazarr (Settings > General > Authentication)
+- Replace broad `nvmeshare` SMB share with purpose-specific shares
+- Regenerate SSL certificate with proper SANs (192.168.178.100, truenas)
+
+## Custom Apps (docker-compose)
+Custom apps use `custom_compose_config_string` parameter in `app.create`/`app.update`:
+```bash
+# Create
+ssh nas "midclt call -j app.create '{\"custom_app\": true, \"app_name\": \"<name>\", \"custom_compose_config_string\": \"<yaml-with-\\n>\"}'"
+# Update compose
+ssh nas "midclt call -j app.update \"<name>\" '{\"custom_compose_config_string\": \"<yaml-with-\\n>\"}'"
+```
+
+## Recyclarr / Quality Profiles
+- Config: `/mnt/nvmepool/nvmeshare/recyclarr/configs/recyclarr.yml`
+- Sync: `ssh nas "sudo docker exec ix-recyclarr-recyclarr-1 recyclarr sync"`
+- **5 profiles** synced to both Radarr and Sonarr:
+  - `HD 1080p [ITA/ENG]` / `1080p [ITA/ENG]` — Bluray > WEB, Italian+MULTi scored +1500
+  - `4K [ITA/ENG]` — same but UHD/WEB-2160p
+  - `HD 1080p [ENG]` / `1080p [ENG]` — ENG only
+  - `4K [ENG]` — ENG only 4K
+  - `HD 1080p [CHN]` / `1080p [CHN]` — Chinese+MULTi scored +1500
+- **Italian/MULTi scores** (+1500 in ITA/ENG profiles): managed via API, protected by `reset_unmatched_scores.except`. If re-syncing after profile deletion, re-apply scores via Radarr/Sonarr API.
+- **Minimum seeders**: 5 on all indexers in Radarr and Sonarr
+- **Jellyseerr**: profiles appear automatically in the "Advanced" tab when requesting
 
 ## Notes
 - Most operations should be done via the TrueNAS web GUI
 - CLI access via `ssh nas` works for file operations and app management
 - Use `midclt` commands for app management (start/stop/restart/redeploy) - no sudo needed
 - Direct `docker` commands require sudo with password (use web GUI or direct terminal)
+- **SSH user permissions**: `admin` (uid 950) is in groups: `admin`, `builtin_administrators`, `apps` (568), `lysergic` (3000). Can write to any 775 lysergic-group dirs on nvmeshare.
+- **ZFS dataset ACL gotcha**: New datasets inherit NFSv4 ACL from pool. If a child dataset has NFSv4 but parent has POSIX, SMB will alert. Fix: `pool.dataset.update "<dataset>" '{"acltype": "POSIX", "aclmode": "DISCARD"}'`
+- **Paperless-ngx**: Custom compose app (postgres:17 + redis:7). Data at `/mnt/nvmepool/nvmeshare/paperless/` (single dataset, no child datasets). Documents backed up to `spinningpool/backup/paperless`
+- **ZFS replication**: secondbrain, linkding, paperless all replicate to spinningpool/backup/ using the main nvmeshare snapshot task

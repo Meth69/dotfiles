@@ -10,6 +10,7 @@ Invoke with: `/music-add <source>`
 Source can be:
 - An archive file (`.rar`, `.zip`, `.7z`, `.tar.gz`)
 - A folder containing music files
+- **Nicotine downloads folder:** `~/.local/share/nicotine/downloads/` (common source for Soulseek downloads)
 
 ---
 
@@ -33,7 +34,17 @@ Report what was found:
 
 ---
 
-## Step 2: Verify ID3 Tags
+## Step 2: Verify Tags
+
+**Note:** MP3 uses ID3 tags, FLAC uses Vorbis Comments. Both work with Navidrome, and `ffprobe` reads both transparently.
+
+| MP3 (ID3v2) | FLAC (Vorbis) |
+|-------------|---------------|
+| `TPE1` | `ARTIST=` |
+| `TALB` | `ALBUM=` |
+| `TYER` | `DATE=` |
+| `TIT2` | `TITLE=` |
+| `TRCK` | `TRACKNUMBER=` |
 
 ### 2a. Read existing tags
 ```bash
@@ -64,7 +75,8 @@ Compare:
 Show user a comparison table. **Ask before making changes.**
 
 ### 2e. Check Audio Quality
-Scan bitrate of all files to verify quality:
+
+**For MP3 files** - Check bitrate:
 ```bash
 for f in <folder>/*.mp3; do
   BITRATE=$(ffprobe -v quiet -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 "$f")
@@ -73,7 +85,7 @@ for f in <folder>/*.mp3; do
 done
 ```
 
-**Quality levels:**
+**MP3 Quality levels:**
 | Bitrate | Quality |
 |---------|---------|
 | 320 kbps | ✅ Highest MP3 (target) |
@@ -81,9 +93,30 @@ done
 | 192 kbps | ⚠️ Decent |
 | <192 kbps | ❌ Low quality |
 
-Report if any files are below 320 kbps.
+**For FLAC files** - Check sample rate and bit depth (FLAC is lossless, so bitrate varies):
+```bash
+for f in <folder>/*.flac; do
+  SAMPLE_RATE=$(ffprobe -v quiet -show_entries stream=sample_rate -of default=noprint_wrappers=1:nokey=1 "$f")
+  BITS=$(ffprobe -v quiet -show_entries stream=bits_per_sample -of default=noprint_wrappers=1:nokey=1 "$f")
+  echo "$(basename "$f"): ${SAMPLE_RATE} Hz, ${BITS}-bit"
+done
+```
+
+**FLAC Quality levels:**
+| Sample Rate | Bit Depth | Quality |
+|-------------|-----------|---------|
+| 96000 Hz | 24-bit | ✅ Hi-Res (studio quality) |
+| 48000 Hz | 24-bit | ✅ High quality |
+| 44100 Hz | 16-bit | ✅ CD quality (standard) |
+| <44100 Hz | 16-bit | ⚠️ Lower than CD |
+
+Report if MP3 files are below 320 kbps or if FLAC files are below CD quality.
 
 ### 2f. Remove comment tags
+
+Strip unwanted metadata (e.g., source website URLs) while preserving essential tags:
+
+**For MP3 files:**
 ```bash
 ffmpeg -i "$f" -map_metadata -1 -map 0:a -c:a copy \
   -metadata title="<title>" -metadata artist="<artist>" \
@@ -91,6 +124,17 @@ ffmpeg -i "$f" -map_metadata -1 -map 0:a -c:a copy \
   -metadata date="<date>" -metadata genre="<genre>" \
   "${f%.mp3}-clean.mp3" && mv "${f%.mp3}-clean.mp3" "$f"
 ```
+
+**For FLAC files:**
+```bash
+ffmpeg -i "$f" -map_metadata -1 -map 0:a -c:a flac \
+  -metadata title="<title>" -metadata artist="<artist>" \
+  -metadata album="<album>" -metadata track="<track>" \
+  -metadata date="<date>" -metadata genre="<genre>" \
+  "${f%.flac}-clean.flac" && mv "${f%.flac}-clean.flac" "$f"
+```
+
+**Note:** FLAC requires `-c:a flac` (re-encoding) since it's lossless. This is fast and preserves quality.
 
 ---
 
@@ -178,6 +222,15 @@ mv "$WORKDIR"/*/cover.jpg "$WORKDIR/$ARTIST/$YEAR - $ALBUM/" 2>/dev/null
 ### Destination:
 `nas:/mnt/spinningpool/music/<Artist>/<Year> - <Album>/`
 
+### Pre-Transfer: Fix Permissions (CRITICAL)
+
+**The SSH user (`admin`) cannot write to folders owned by `lysergic:apps` without write permissions.** You MUST set the destination folder to 777 before rsync.
+
+```bash
+# If artist folder exists, set it to 777 first
+ssh nas 'midclt call filesystem.setperm "{\"path\": \"/mnt/spinningpool/music/<Artist>\", \"mode\": \"0777\"}"'
+```
+
 ### Transfer:
 ```bash
 rsync -av --dry-run "$WORKDIR/<Artist>/" nas:/mnt/spinningpool/music/<Artist>/
@@ -195,11 +248,18 @@ rsync -av "$WORKDIR/<Artist>/" nas:/mnt/spinningpool/music/<Artist>/
 ssh nas "ls -la /mnt/spinningpool/music/<Artist>/<Year> - <Album>/"
 ```
 
-### Fix Permissions:
-Files copied via SSH will be owned by `admin:admin`. Fix to `lysergic:apps` (uid=3000, gid=568) for Navidrome:
+### Post-Transfer: Fix Ownership and Permissions
+
+Set proper ownership (`lysergic:apps`) and group-writable permissions for Navidrome:
 ```bash
-ssh nas "midclt call filesystem.chown '{\"path\": \"/mnt/spinningpool/music/<Artist>\", \"uid\": 3000, \"gid\": 568, \"options\": {\"recursive\": true}}'"
+# Fix ownership recursively (uid=3000, gid=568)
+ssh nas 'midclt call filesystem.chown "{\"path\": \"/mnt/spinningpool/music/<Artist>\", \"uid\": 3000, \"gid\": 568, \"options\": {\"recursive\": true}}" --job'
+
+# Set permissions to 775 (owner+group can write)
+ssh nas 'midclt call filesystem.setperm "{\"path\": \"/mnt/spinningpool/music/<Artist>\", \"mode\": \"0775\", \"options\": {\"recursive\": true}}" --job'
 ```
+
+**Important:** Use `--job` flag for recursive operations to get progress feedback.
 
 ### Cleanup:
 Delete temp files after successful transfer:
@@ -231,10 +291,20 @@ User: www.discografiascompletas.net
 
 AI: [Extracts] Found 11 MP3 files for "Avenged Sevenfold - City of Evil (2005)"
     [Verifies tags against MusicBrainz] Tags look correct!
+    [Checks quality] All files at 320 kbps ✓
     [Removes comment tags] Done.
     [Renames to convention] Done.
     [Shows dry-run rsync] Ready to move. Proceed?
 User: yes
 
 AI: [Transfers] Done! Album added to Navidrome library.
+```
+
+**FLAC example:**
+```
+User: /music-add /home/lysergic/Downloads/album.flac
+
+AI: [Extracts] Found 12 FLAC files for "Pink Floyd - Dark Side of the Moon (1973)"
+    [Checks quality] 44100 Hz, 16-bit (CD quality) ✓
+    ...
 ```
