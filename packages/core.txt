@@ -34,3 +34,6 @@ gst-plugin-pipewire
 libpulse
 zram-generator
 xorg-xinit
+
+# Python deps for system utilities
+python-libevdev
