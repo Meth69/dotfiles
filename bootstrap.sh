@@ -194,7 +194,27 @@ if [[ "$hypr_choice" == "y" || "$hypr_choice" == "Y" ]]; then
     bash ~/scripts/setup-hyprland.sh
 fi
 
-# 13. Install yazi packages (flavors, plugins)
+# 13. Optional: Setup printing (CUPS + driverless IPP)
+echo ""
+read -p "Setup printing support (CUPS + network printer discovery)? (y/n): " print_choice < /dev/tty
+if [[ "$print_choice" == "y" || "$print_choice" == "Y" ]]; then
+    echo "📦 Installing CUPS and nss-mdns..."
+    sudo pacman -S --needed --noconfirm cups nss-mdns
+    echo "🔧 Enabling cups and avahi-daemon..."
+    sudo systemctl enable --now cups.service avahi-daemon.service
+    # Add mdns_minimal to nsswitch.conf for .local printer discovery (idempotent)
+    if ! grep -q 'mdns_minimal' /etc/nsswitch.conf; then
+        sudo sed -i 's/^hosts: mymachines resolve/hosts: mymachines mdns_minimal [NOTFOUND=return] resolve/' /etc/nsswitch.conf
+        echo "✅ nsswitch.conf updated for mDNS"
+    else
+        echo "✅ nsswitch.conf already configured for mDNS"
+    fi
+    sudo usermod -aG lp "$USER"
+    echo "✅ Printing setup complete (re-login for lp group to take effect)"
+    echo "   Add your printer at: http://localhost:631"
+fi
+
+# 14. Install yazi packages (flavors, plugins)
 if command -v ya &> /dev/null; then
     echo ""
     echo "📦 Installing yazi packages..."
@@ -202,10 +222,22 @@ if command -v ya &> /dev/null; then
     echo "✅ Yazi packages installed"
 fi
 
-# 14. Setup Claude Code configuration
+# 15. Setup Claude Code configuration
 bash ~/scripts/setup-claude.sh
 
-# 15. Reload shell
+# 16. Steam crash fix (AMD + Mesa 26 regression workaround)
+if pacman -Q steam &>/dev/null 2>&1; then
+    echo ""
+    echo -e "${GREEN}🎮 Steam crash fix${NC}"
+    mkdir -p ~/.local/share/applications
+    if [ -f ~/.local/share/applications/steam.desktop ]; then
+        echo "✅ Steam desktop override in place (STEAM_DISABLE_GPU_PROCESS=1, PrefersNonDefaultGPU=false)"
+    else
+        echo "⚠️  Steam desktop override missing — run: dotfiles checkout -- .local/share/applications/steam.desktop"
+    fi
+fi
+
+# 17. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""
