@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HDMI_NAME="HDMI-A-1"
+DP_NAME="DP-1"
+DP_MODE="3840x2160@144.00Hz"
+DP_SCALE="1.25"
+HDMI_SCALE="1"
+
+usage() {
+    cat <<'EOF'
+Usage: hypr-display-profile [--print]
+
+Detect the preferred/native mode for HDMI-A-1 from EDID, prefer ~60 Hz for that
+mode, and place DP-1 immediately to the right when present.
+EOF
+}
+
+print_only=false
+if [[ "${1-}" == "--print" ]]; then
+    print_only=true
+elif [[ "${1-}" == "-h" || "${1-}" == "--help" ]]; then
+    usage
+    exit 0
+elif [[ $# -gt 0 ]]; then
+    usage >&2
+    exit 1
+fi
+
+get_connector_path() {
+    local connector_name="$1"
+    local path
+
+    for path in /sys/class/drm/*-"$connector_name"; do
+        [[ -e "$path/status" ]] || continue
+        if [[ "$({ tr -d '\n' < "$path/status"; })" == "connected" ]]; then
+            printf '%s\n' "$path"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+hypr_monitors_json() {
+    hyprctl -j monitors all
+}
+
+pick_hdmi_mode() {
+    local monitors_json="$1"
+    local edid_path="$2"
+
+    MONITORS_JSON="$monitors_json" python - "$HDMI_NAME" "$edid_path" <<'PY'
+import json
+import os
+import pathlib
+import re
+import subprocess
+import sys
+
+connector_name, edid_path = sys.argv[1:]
+monitors = json.loads(os.environ["MONITORS_JSON"])
+monitor = next((m for m in monitors if m.get("name") == connector_name), None)
+if monitor is None:
+    raise SystemExit(1)
+
+available_modes = monitor.get("availableModes", [])
+preferred_resolution = None
+edid_file = pathlib.Path(edid_path)
+
+if edid_file.exists():
+    decoded = subprocess.run(
+        ["edid-decode", str(edid_file)],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    match = re.search(r"DTD 1:\s+(\d+)x(\d+)\s+([0-9.]+)\s+Hz", decoded)
+    if match:
+        preferred_resolution = (int(match.group(1)), int(match.group(2)))
+
+parsed_modes = []
+for mode in available_modes:
+    match = re.match(r"(?P<width>\d+)x(?P<height>\d+)@(?P<hz>[0-9.]+)Hz", mode)
+    if not match:
+        continue
+    parsed_modes.append(
+        {
+            "raw": mode,
+            "width": int(match.group("width")),
+            "height": int(match.group("height")),
+            "hz": float(match.group("hz")),
+        }
+    )
+
+if preferred_resolution is not None:
+    exact_sixty = [
+        mode for mode in parsed_modes
+        if (mode["width"], mode["height"]) == preferred_resolution and abs(mode["hz"] - 60.0) < 0.11
+    ]
+    if exact_sixty:
+        print(exact_sixty[0]["raw"])
+        raise SystemExit(0)
+
+    near_sixty = [
+        mode for mode in parsed_modes
+        if (mode["width"], mode["height"]) == preferred_resolution and abs(mode["hz"] - 60.0) < 0.6
+    ]
+    if near_sixty:
+        near_sixty.sort(key=lambda mode: abs(mode["hz"] - 60.0))
+        print(near_sixty[0]["raw"])
+        raise SystemExit(0)
+
+sixtyish = [mode for mode in parsed_modes if abs(mode["hz"] - 60.0) < 0.6]
+if sixtyish:
+    sixtyish.sort(key=lambda mode: (abs(mode["hz"] - 60.0), -(mode["width"] * mode["height"])))
+    print(sixtyish[0]["raw"])
+    raise SystemExit(0)
+
+if parsed_modes:
+    parsed_modes.sort(key=lambda mode: -(mode["width"] * mode["height"]))
+    print(parsed_modes[0]["raw"])
+    raise SystemExit(0)
+
+raise SystemExit(1)
+PY
+}
+
+keyword_mode() {
+    printf '%s\n' "${1%Hz}"
+}
+
+mode_width() {
+    printf '%s\n' "${1%%x*}"
+}
+
+run_or_print() {
+    if $print_only; then
+        printf '%s\n' "$*"
+    else
+        "$@"
+    fi
+}
+
+refresh_wallpaper() {
+    pgrep -x hyprpaper >/dev/null 2>&1 || return 0
+
+    if $print_only; then
+        printf '%s\n' "pkill -x hyprpaper"
+        printf '%s\n' "nohup hyprpaper >/dev/null 2>&1 &"
+        return 0
+    fi
+
+    pkill -x hyprpaper || true
+    nohup hyprpaper >/dev/null 2>&1 &
+}
+
+refresh_waybar() {
+    pgrep -x waybar >/dev/null 2>&1 || return 0
+
+    if $print_only; then
+        printf '%s\n' "pkill -x waybar"
+        printf '%s\n' "nohup waybar >/dev/null 2>&1 &"
+        return 0
+    fi
+
+    pkill -x waybar || true
+    nohup waybar >/dev/null 2>&1 &
+}
+
+monitors_json="$(hypr_monitors_json)"
+hdmi_connector_path="${HDMI_CONNECTOR_PATH:-}"
+dp_connector_path="${DP_CONNECTOR_PATH:-}"
+
+if [[ -z "$hdmi_connector_path" ]]; then
+    hdmi_connector_path="$(get_connector_path "$HDMI_NAME" || true)"
+fi
+
+if [[ -z "$dp_connector_path" ]]; then
+    dp_connector_path="$(get_connector_path "$DP_NAME" || true)"
+fi
+
+if [[ -z "$hdmi_connector_path" && -z "$dp_connector_path" ]]; then
+    echo "No connected HDMI-A-1 or DP-1 outputs found" >&2
+    exit 1
+fi
+
+hdmi_width=0
+if [[ -n "$hdmi_connector_path" ]]; then
+    hdmi_mode="$(pick_hdmi_mode "$monitors_json" "$hdmi_connector_path/edid")"
+    hdmi_width="$(mode_width "$hdmi_mode")"
+    run_or_print hyprctl keyword monitor "$HDMI_NAME,$(keyword_mode "$hdmi_mode"),0x0,$HDMI_SCALE"
+fi
+
+if [[ -n "$dp_connector_path" ]]; then
+    dp_x="$hdmi_width"
+    run_or_print hyprctl keyword monitor "$DP_NAME,$(keyword_mode "$DP_MODE"),${dp_x}x0,$DP_SCALE"
+fi
+
+refresh_wallpaper
+refresh_waybar
