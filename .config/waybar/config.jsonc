@@ -10,6 +10,7 @@
   ],
   "modules-right": [
     "custom/network",
+    "custom/dualsense",
     "custom/updates",
     "idle_inhibitor",
     "custom/media",
@@ -84,6 +85,14 @@
     "return-type": "json",
     "interval": 2,
     "tooltip": true
+  },
+  "custom/dualsense": {
+    "exec-if": "bash -lc '~/.config/waybar/scripts/dualsense.sh >/dev/null 2>&1'",
+    "exec": "~/.config/waybar/scripts/dualsense.sh",
+    "return-type": "json",
+    "interval": 5,
+    "tooltip": true,
+    "on-click": "pkill -x wofi || ~/.config/waybar/scripts/dualsense-menu.sh"
   },
   "custom/gpu": {
     "exec": "~/.config/waybar/scripts/gpu.sh",
