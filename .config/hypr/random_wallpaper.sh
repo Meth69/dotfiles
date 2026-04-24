@@ -5,8 +5,15 @@ WALLPAPER_DIR="$HOME/.config/wallpapers"
 CURRENT_LINK="$HOME/.config/wallpapers/current"
 HYPRPAPER_CONF="$HOME/.config/hypr/hyprpaper.conf"
 
-# Get all wallpapers in the directory
-wallpapers=("$WALLPAPER_DIR"/*.{png,jpg,jpeg})
+# Get all wallpapers in the directory (nullglob prevents literal patterns for unmatched extensions)
+shopt -s nullglob
+wallpapers=("$WALLPAPER_DIR"/*.png "$WALLPAPER_DIR"/*.jpg "$WALLPAPER_DIR"/*.jpeg)
+shopt -u nullglob
+
+if [[ ${#wallpapers[@]} -eq 0 ]]; then
+    echo "No wallpapers found in $WALLPAPER_DIR" >&2
+    exit 1
+fi
 
 # Pick a random wallpaper
 random_wallpaper="${wallpapers[RANDOM % ${#wallpapers[@]}]}"

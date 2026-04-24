@@ -2,12 +2,67 @@
 show_hidden = true
 
 [opener]
-edit = [{ run = 'helix "$@"', block = true, desc = "Helix" }]
-audio = [{ run = 'vlc "$@"', orphan = true, desc = "VLC" }]
+edit    = [{ run = 'helix "$@"',       block = true,  desc = "Helix"      }]
+audio   = [{ run = 'vlc "$@"',         orphan = true, desc = "VLC"        }]
+video   = [{ run = 'vlc "$@"',         orphan = true, desc = "VLC"        }]
+image   = [{ run = 'gwenview "$@"',    orphan = true, desc = "Gwenview"   }]
+pdf     = [{ run = 'okular "$@"',      orphan = true, desc = "Okular"     }]
+archive = [{ run = 'ark "$@"',         orphan = true, desc = "Ark"        }]
+office  = [{ run = 'libreoffice "$@"', orphan = true, desc = "LibreOffice"}]
 
 [open]
-text = "edit"
+rules = [
+  # Text & code
+  { mime = "text/*",                use = "edit" },
+  { mime = "application/json",      use = "edit" },
+  { mime = "application/xml",       use = "edit" },
+  { mime = "application/javascript",use = "edit" },
+  { mime = "application/x-sh",      use = "edit" },
+  { mime = "application/x-python",  use = "edit" },
+  { url = "*.yaml", use = "edit" },
+  { url = "*.toml", use = "edit" },
+  { url = "*.ini",  use = "edit" },
+  { url = "*.env",  use = "edit" },
 
-[[open.rules]]
-mime = "audio/*"
-use = "audio"
+  # Media
+  { mime = "audio/*", use = "audio" },
+  { mime = "video/*", use = "video" },
+  { mime = "image/*", use = "image" },
+
+  # Documents
+  { mime = "application/pdf", use = "pdf" },
+
+  # Archives
+  { mime = "application/zip",                 use = "archive" },
+  { mime = "application/x-tar",               use = "archive" },
+  { mime = "application/x-compressed-tar",    use = "archive" },
+  { mime = "application/gzip",                use = "archive" },
+  { mime = "application/x-bzip2",             use = "archive" },
+  { mime = "application/x-xz",                use = "archive" },
+  { mime = "application/x-zstd",              use = "archive" },
+  { mime = "application/x-7z-compressed",     use = "archive" },
+  { mime = "application/x-rar",               use = "archive" },
+  { mime = "application/vnd.rar",             use = "archive" },
+  { url = "*.7z",  use = "archive" },
+  { url = "*.rar", use = "archive" },
+  { url = "*.zst", use = "archive" },
+  { url = "*.gz",  use = "archive" },
+  { url = "*.bz2", use = "archive" },
+  { url = "*.xz",  use = "archive" },
+
+  # Office: modern (.docx/.xlsx/.pptx) and legacy (.doc/.xls/.ppt) formats
+  { mime = "application/vnd.openxmlformats-officedocument*", use = "office" },
+  { mime = "application/vnd.oasis.opendocument*",            use = "office" },
+  { mime = "application/vnd.ms-*",  use = "office" },
+  { mime = "application/msword",    use = "office" },
+  # Office: extension fallback in case MIME is not detected
+  { url = "*.docx", use = "office" },
+  { url = "*.xlsx", use = "office" },
+  { url = "*.pptx", use = "office" },
+  { url = "*.doc",  use = "office" },
+  { url = "*.xls",  use = "office" },
+  { url = "*.ppt",  use = "office" },
+  { url = "*.odt",  use = "office" },
+  { url = "*.ods",  use = "office" },
+  { url = "*.odp",  use = "office" },
+]
