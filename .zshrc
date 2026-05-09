@@ -116,6 +116,14 @@ source $ZSH/oh-my-zsh.sh
 export SUDO_ASKPASS=/usr/bin/ksshaskpass
 export TERMINAL=kitty
 export EDITOR=hx
+export OPENCODE_DISABLE_EXTERNAL_SKILLS=1
+export OPENCODE_DISABLE_CLAUDE_CODE_PROMPT=1
+
+# Machine-local secrets live outside the dotfiles repo.
+# See ~/.config/shell/secrets.zsh.example for setup notes.
+if [[ -f "$HOME/.config/shell/secrets.zsh" ]]; then
+  source "$HOME/.config/shell/secrets.zsh"
+fi
 
 # Initialize starship prompt
 eval "$(starship init zsh)"
@@ -126,4 +134,14 @@ export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
-alias ccg="ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic ANTHROPIC_AUTH_TOKEN=REDACTED API_TIMEOUT_MS=3000000 claude --settings $HOME/.claude/settings-glm.json"
+_OPENCODE_CONFIG="$HOME/.config/opencode/oh-my-opencode-slim.json"
+_OPENCODE_CORE="$HOME/.config/opencode/opencode.json"
+openglm() {
+  local _tmpdir
+  _tmpdir=$(mktemp -d)
+  cp -r "$HOME/.config/opencode" "$_tmpdir/opencode"
+  sed -i 's/"preset": "openai"/"preset": "glm"/' "$_tmpdir/opencode/oh-my-opencode-slim.json"
+  jq '.agent.plan.model = "zai-coding-plan/glm-5.1"' "$_tmpdir/opencode/opencode.json" > "$_tmpdir/opencode/opencode.json.tmp" && mv "$_tmpdir/opencode/opencode.json.tmp" "$_tmpdir/opencode/opencode.json"
+  XDG_CONFIG_HOME="$_tmpdir" /usr/bin/opencode "$@"
+  rm -rf "$_tmpdir"
+}

@@ -222,10 +222,7 @@ if command -v ya &> /dev/null; then
     echo "✅ Yazi packages installed"
 fi
 
-# 15. Setup Claude Code configuration
-bash ~/scripts/setup-claude.sh
-
-# 16. Steam crash fix (AMD + Mesa 26 regression workaround)
+# 15. Steam crash fix (AMD + Mesa 26 regression workaround)
 if pacman -Q steam &>/dev/null 2>&1; then
     echo ""
     echo -e "${GREEN}🎮 Steam crash fix${NC}"
@@ -237,7 +234,7 @@ if pacman -Q steam &>/dev/null 2>&1; then
     fi
 fi
 
-# 17. Reload shell
+# 16. Reload shell
 echo ""
 echo "✅ Bootstrap complete!"
 echo ""

@@ -5,6 +5,41 @@
     "oh-my-opencode-slim",
     "opencode-tmux-indicator"
   ],
+  "provider": {
+    "ollama-cloud": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama Cloud",
+      "options": {
+        "baseURL": "http://localhost:11434/v1",
+        "apiKey": "ollama",
+        "timeout": 1200000,
+        "chunkTimeout": 120000
+      },
+      "models": {
+        "deepseek-v4-flash:cloud": {
+          "name": "DeepSeek V4 Flash Cloud",
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "deepseek-v4-pro:cloud": {
+          "name": "DeepSeek V4 Pro Cloud",
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "kimi-k2.6:cloud": {
+          "name": "Kimi K2.6 Cloud",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          }
+        }
+      }
+    }
+  },
   "mcp": {
     "MCP_DOCKER": {
       "type": "local",
@@ -13,6 +48,42 @@
         "mcp",
         "gateway",
         "run"
+      ],
+      "enabled": true
+    },
+    "searxng": {
+      "type": "local",
+      "command": [
+        "node",
+        "/home/lysergic/Projects/MCP/SearXNG/build/index.js"
+      ],
+      "enabled": true,
+      "environment": {
+        "SEARXNG_URL": "http://127.0.0.1:10000"
+      }
+    },
+    "jcodemunch": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "--from",
+        "jcodemunch-mcp[zhipu]",
+        "jcodemunch-mcp"
+      ],
+      "enabled": true,
+      "timeout": 10000,
+      "environment": {
+        "ZHIPUAI_API_KEY": "{env:ZHIPUAI_API_KEY}",
+        "JCODEMUNCH_SUMMARIZER_PROVIDER": "glm",
+        "JCODEMUNCH_ALLOW_REMOTE_SUMMARIZER": "1",
+        "JCODEMUNCH_SUMMARIZER_CONCURRENCY": "1"
+      }
+    },
+    "gbrain": {
+      "type": "local",
+      "command": [
+        "/home/lysergic/.local/bin/gbrain",
+        "serve"
       ],
       "enabled": true
     }
