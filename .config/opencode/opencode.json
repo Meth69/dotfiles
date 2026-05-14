@@ -3,7 +3,8 @@
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
     "oh-my-opencode-slim",
-    "opencode-tmux-indicator"
+    "opencode-tmux-indicator",
+    "@tarquinen/opencode-dcp@latest"
   ],
   "provider": {
     "ollama-cloud": {
