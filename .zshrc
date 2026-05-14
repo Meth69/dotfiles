@@ -173,6 +173,18 @@ openchamber() {
     fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
 }
 
+openchamber-mobile() {
+  local _tailscale_ip
+  _tailscale_ip=$(tailscale ip -4 2>/dev/null)
+
+  if [[ -z "$_tailscale_ip" ]]; then
+    print -r -- "openchamber-mobile: Tailscale IPv4 address not found" >&2
+    return 1
+  fi
+
+  openchamber --host "$_tailscale_ip" "$@"
+}
+
 # Direct subcommands still bypass the wrapper and go to the real binary.
 opencode() {
   local _cmd="$1"
