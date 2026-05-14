@@ -134,6 +134,12 @@ export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
+# OpenChamber depends on native packages that currently need Node LTS.
+# Keep system Node unchanged, but run OpenChamber through fnm's Node 22.
+openchamber() {
+  fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
+}
+
 _OPENCODE_CONFIG="$HOME/.config/opencode/oh-my-opencode-slim.json"
 _OPENCODE_CORE="$HOME/.config/opencode/opencode.json"
 openglm() {

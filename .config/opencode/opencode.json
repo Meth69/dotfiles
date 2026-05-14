@@ -51,6 +51,29 @@
       ],
       "enabled": true
     },
+    "browsermcp": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@browsermcp/mcp@latest"
+      ],
+      "enabled": true
+    },
+    "stealth-browser": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "stealth-agent-browser-mcp"
+      ],
+      "enabled": true,
+      "timeout": 30000,
+      "environment": {
+        "SAB_HEADLESS": "true",
+        "SAB_STEALTH_LEVEL": "patched"
+      }
+    },
     "searxng": {
       "type": "local",
       "command": [
@@ -80,11 +103,9 @@
       }
     },
     "gbrain": {
-      "type": "local",
-      "command": [
-        "/home/lysergic/.local/bin/gbrain",
-        "serve"
-      ],
+      "type": "remote",
+      "url": "http://192.168.178.100:8787/mcp",
+      "oauth": false,
       "enabled": true
     }
   },
