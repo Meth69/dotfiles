@@ -188,6 +188,8 @@ openchamber-mobile() {
 # Direct subcommands still bypass the wrapper and go to the real binary.
 opencode() {
   local _cmd="$1"
+  local _arg
+  local _has_dir_arg=0
 
   case "$_cmd" in
     completion|acp|mcp|attach|run|debug|providers|auth|agent|upgrade|uninstall|serve|web|models|stats|export|import|github|pr|session|plugin|plug|db)
@@ -198,12 +200,21 @@ opencode() {
 
   _opencode_ensure_shared_server
 
+  for _arg in "$@"; do
+    if [[ "$_arg" == --dir || "$_arg" == --dir=* ]]; then
+      _has_dir_arg=1
+      break
+    fi
+  done
+
   if [[ -n "$1" && "$1" != -* && -e "$1" ]]; then
     local _dir="$1"
     shift
-    /usr/bin/opencode attach "$_opencode_shared_server_url" --dir "$_dir" "$@"
-  else
+    /usr/bin/opencode attach "$_opencode_shared_server_url" --dir "${_dir:A}" "$@"
+  elif (( _has_dir_arg )); then
     /usr/bin/opencode attach "$_opencode_shared_server_url" "$@"
+  else
+    /usr/bin/opencode attach "$_opencode_shared_server_url" --dir "$PWD" "$@"
   fi
 }
 
