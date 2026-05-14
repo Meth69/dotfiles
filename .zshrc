@@ -134,10 +134,65 @@ export PATH="$PATH:$HOME/.local/bin"
 alias hx='helix'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
+# Normal OpenCode sessions share one local server so OpenChamber can see them.
+# OpenCode TUI instances attach to it, while OpenChamber uses it as external backend.
+_opencode_shared_server_url="http://127.0.0.1:4096"
+
+_opencode_ensure_shared_server() {
+  local _url="http://127.0.0.1:4096"
+  local _health="$_url/session"
+  local _state_dir="$HOME/.local/state/opencode"
+
+  if ! curl -fsS "$_health" >/dev/null 2>&1; then
+    mkdir -p "$_state_dir"
+    setsid -f /usr/bin/opencode serve --hostname 127.0.0.1 --port 4096 \
+      > "$_state_dir/server-4096.log" 2>&1 < /dev/null
+
+    local _i
+    for _i in {1..30}; do
+      curl -fsS "$_health" >/dev/null 2>&1 && break
+      sleep 0.1
+    done
+  fi
+}
+
 # OpenChamber depends on native packages that currently need Node LTS.
-# Keep system Node unchanged, but run OpenChamber through fnm's Node 22.
+# Keep system Node unchanged, run OpenChamber through fnm's Node 22, and point
+# it at the shared OpenCode server instead of spawning a private backend.
 openchamber() {
-  fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
+  case "$1" in
+    stop|status|logs|update)
+      fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
+      return
+      ;;
+  esac
+
+  _opencode_ensure_shared_server
+  OPENCODE_HOST="$_opencode_shared_server_url" \
+    OPENCODE_SKIP_START=true \
+    fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
+}
+
+# Direct subcommands still bypass the wrapper and go to the real binary.
+opencode() {
+  local _cmd="$1"
+
+  case "$_cmd" in
+    completion|acp|mcp|attach|run|debug|providers|auth|agent|upgrade|uninstall|serve|web|models|stats|export|import|github|pr|session|plugin|plug|db)
+      /usr/bin/opencode "$@"
+      return
+      ;;
+  esac
+
+  _opencode_ensure_shared_server
+
+  if [[ -n "$1" && "$1" != -* && -e "$1" ]]; then
+    local _dir="$1"
+    shift
+    /usr/bin/opencode attach "$_opencode_shared_server_url" --dir "$_dir" "$@"
+  else
+    /usr/bin/opencode attach "$_opencode_shared_server_url" "$@"
+  fi
 }
 
 _OPENCODE_CONFIG="$HOME/.config/opencode/oh-my-opencode-slim.json"
@@ -145,9 +200,12 @@ _OPENCODE_CORE="$HOME/.config/opencode/opencode.json"
 openglm() {
   local _tmpdir
   _tmpdir=$(mktemp -d)
-  cp -r "$HOME/.config/opencode" "$_tmpdir/opencode"
-  sed -i 's/"preset": "openai"/"preset": "glm"/' "$_tmpdir/opencode/oh-my-opencode-slim.json"
-  jq '.agent.plan.model = "zai-coding-plan/glm-5.1"' "$_tmpdir/opencode/opencode.json" > "$_tmpdir/opencode/opencode.json.tmp" && mv "$_tmpdir/opencode/opencode.json.tmp" "$_tmpdir/opencode/opencode.json"
-  XDG_CONFIG_HOME="$_tmpdir" /usr/bin/opencode "$@"
-  rm -rf "$_tmpdir"
+  {
+    cp -r "$HOME/.config/opencode" "$_tmpdir/opencode"
+    sed -i 's/"preset": "openai"/"preset": "glm"/' "$_tmpdir/opencode/oh-my-opencode-slim.json"
+    jq '.agent.plan.model = "zai-coding-plan/glm-5.1"' "$_tmpdir/opencode/opencode.json" > "$_tmpdir/opencode/opencode.json.tmp" && mv "$_tmpdir/opencode/opencode.json.tmp" "$_tmpdir/opencode/opencode.json"
+    XDG_CONFIG_HOME="$_tmpdir" /usr/bin/opencode "$@"
+  } always {
+    rm -rf "$_tmpdir"
+  }
 }
