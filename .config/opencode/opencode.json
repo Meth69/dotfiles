@@ -7,6 +7,15 @@
     "@tarquinen/opencode-dcp@latest"
   ],
   "provider": {
+    "openai": {
+      "models": {
+        "gpt-5.5": {
+          "options": {
+            "textVerbosity": "low"
+          }
+        }
+      }
+    },
     "ollama-cloud": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama Cloud",
