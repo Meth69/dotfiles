@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hyprland Desktop Ideas</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #16161f;
+      --surface: #1f2335;
+      --surface-2: #24283b;
+      --text: #c0caf5;
+      --muted: #9aa5ce;
+      --faint: #565f89;
+      --accent: #7dcfff;
+      --accent-2: #7aa2f7;
+      --purple: #bb9af7;
+      --warning: #e0af68;
+      --danger: #f7768e;
+      --success: #9ece6a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(125, 207, 255, 0.14), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(187, 154, 247, 0.10), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 56px 24px 72px;
+    }
+
+    header {
+      margin-bottom: 36px;
+      border-bottom: 1px solid rgba(125, 207, 255, 0.22);
+      padding-bottom: 24px;
+    }
+
+    h1, h2, h3 { line-height: 1.15; margin: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -0.04em; }
+    h2 { margin-top: 34px; font-size: 1.45rem; color: var(--accent); }
+    h3 { margin-top: 22px; font-size: 1.05rem; color: var(--accent-2); }
+    p { margin: 10px 0; max-width: 75ch; }
+
+    .lede { color: var(--muted); font-size: 1.08rem; margin-top: 12px; }
+    .status { color: var(--success); font-weight: 700; }
+
+    section {
+      background: rgba(31, 35, 53, 0.74);
+      border: 1px solid rgba(86, 95, 137, 0.45);
+      border-radius: 18px;
+      padding: 22px;
+      margin: 18px 0;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    ul { margin: 10px 0 0; padding-left: 1.25rem; }
+    li { margin: 8px 0; }
+
+    code {
+      font-family: "Fira Code", "FiraCode Nerd Font", ui-monospace, monospace;
+      color: var(--accent);
+      background: rgba(125, 207, 255, 0.09);
+      border: 1px solid rgba(125, 207, 255, 0.16);
+      border-radius: 6px;
+      padding: 0.08rem 0.35rem;
+    }
+
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      color: var(--bg);
+      background: var(--accent);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="tag">Hyprland</span><span class="tag">Tokyo Night</span>
+      <h1>Desktop ideas to revisit</h1>
+      <p class="lede">Notes from the Hyprland setup discussion. The first clean batch was applied separately: smart gaps, empty workspace binds, hypridle starts with Hyprland, and DPMS turns displays off after 10 minutes without automatic lock or suspend.</p>
+    </header>
+
+    <section>
+      <h2>Design direction</h2>
+      <p><strong>Chosen direction:</strong> restrained wallpaper-accented Tokyo Night. Keep the stable dark base for programming, then let shell surfaces use a limited accent. Do not recolor editor, terminal palette, browser content, GTK, Qt, Discord, or other work apps from every wallpaper.</p>
+      <p><strong>HyDE/Wallbash lesson:</strong> full Wallbash is impressive because it propagates wallpaper-derived colors into Hyprland borders, bars, launchers, GTK/Qt, Hyprlock, VS Code, and other templates. For a daily programming desktop, use the idea sparingly.</p>
+    </section>
+
+    <section>
+      <h2>Ideas not implemented yet</h2>
+      <h3>Keybind labels and help menu</h3>
+      <ul>
+        <li>Convert core binds to <code>bindd</code> so labels appear in <code>hyprctl binds -j</code>.</li>
+        <li>Add <code>Super+/</code> to open a searchable keybind cheat sheet.</li>
+        <li>Use Wofi at first; consider <code>rofi-wayland</code>, <code>fuzzel</code>, <code>tofi</code>, or <code>anyrun</code> later if richer menus are worth it.</li>
+      </ul>
+
+      <h3>Master layout extras</h3>
+      <ul>
+        <li>You already have <code>Super+Shift+Return</code> for <code>swapwithmaster</code> and Alt-Tab cycling.</li>
+        <li>Possible later binds: <code>focusmaster</code>, <code>mfact +/-</code>, and <code>orientationcycle</code>.</li>
+      </ul>
+
+      <h3>Special workspaces</h3>
+      <ul>
+        <li>Special workspaces are scratchpads that pop in and out with a keybind.</li>
+        <li>You already have a dropdown terminal/scratchpad pattern.</li>
+        <li>Possible later named scratchpads: notes, logs, music, AI. Skip unless they beat tmux.</li>
+      </ul>
+
+      <h3>Skipped because tmux already wins</h3>
+      <ul>
+        <li>Hyprland groups duplicate tmux panes/windows and lose remote laptop continuity.</li>
+        <li>Keep terminal clustering inside tmux unless there is a clear GUI-only use case.</li>
+      </ul>
+
+      <h3>Fullscreen and snapping</h3>
+      <ul>
+        <li>Leave fullscreen behavior alone for now.</li>
+        <li>Floating-window snapping could help little utility windows like Thunar, file-roller, YAD dialogs, file pickers, audio mixers, calculators, and color pickers.</li>
+      </ul>
+
+      <h3>hyprsunset</h3>
+      <ul>
+        <li>Potentially useful if you want Night Light/f.lux-style warmth again.</li>
+        <li>Prefer hyprsunset over shader-based approaches because it is not captured in screenshots or recordings.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Visual polish backlog</h2>
+      <ul>
+        <li>Make Waybar calmer: fewer loud pills, tighter rhythm, clearer active workspace, better urgent states.</li>
+        <li>Restyle Wofi so it feels like part of the same shell, not a default launcher.</li>
+        <li>Refine Dunst notifications with a softer Tokyo Night surface and meaningful urgency colors.</li>
+        <li>Make Hyprlock match the shell: darker blur, cleaner type, one accent ring or field.</li>
+        <li>Reduce bright cyan shadow intensity. Keep cyan as identity, but make the shadow less gamer/rice.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>References</h2>
+      <ul>
+        <li><a href="https://github.com/HyDE-Project/HyDE">HyDE</a></li>
+        <li><a href="https://github.com/end-4/dots-hyprland">end-4 dots-hyprland</a></li>
+        <li><a href="https://github.com/JaKooLit/Hyprland-Dots">JaKooLit Hyprland-Dots</a></li>
+        <li><a href="https://github.com/prasanthrangan/hyprdots">prasanthrangan hyprdots</a></li>
+        <li><a href="https://github.com/mylinuxforwork/dotfiles">ML4W dotfiles</a></li>
+        <li><a href="https://wiki.hypr.land/Configuring/Basics/Dispatchers/">Hyprland dispatchers</a></li>
+        <li><a href="https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/">Hyprland workspace rules</a></li>
+        <li><a href="https://wiki.hypr.land/Hypr-Ecosystem/hyprsunset/">hyprsunset</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
