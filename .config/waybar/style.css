@@ -31,22 +31,22 @@ window#waybar {
 /* Workspaces */
 #workspaces button {
     margin: 4px 2px;
-    padding: 0 9px;
+    padding: 0 8px;
     color: @faint;
     background: transparent;
-    border-radius: 999px;
+    border-radius: 6px;
     transition: all 160ms ease-out;
 }
 
 #workspaces button:hover {
-    background: rgba(65, 72, 104, 0.42);
+    background: rgba(65, 72, 104, 0.34);
     color: @muted;
 }
 
 #workspaces button.active {
     color: @bg;
-    background: linear-gradient(135deg, @accent, @blue);
-    box-shadow: 0 0 18px rgba(125, 207, 255, 0.20);
+    background: linear-gradient(135deg, rgba(125, 207, 255, 0.95), rgba(122, 162, 247, 0.92));
+    box-shadow: 0 0 12px rgba(125, 207, 255, 0.16);
 }
 
 #workspaces button.urgent {
@@ -75,20 +75,20 @@ window#waybar {
 #custom-updates,
 #custom-power {
     padding: 0 10px;
-    margin: 4px 2px;
-    border-radius: 999px;
-    background-color: rgba(36, 40, 59, 0.60);
-    border: 1px solid rgba(65, 72, 104, 0.48);
+    margin: 4px 3px;
+    border-radius: 7px;
+    background-color: rgba(31, 35, 53, 0.72);
+    border: 1px solid rgba(65, 72, 104, 0.52);
 }
 
 #network,
 #custom-network,
 #custom-dualsense {
     padding: 0 10px;
-    margin: 4px 2px;
-    border-radius: 999px;
-    background-color: rgba(36, 40, 59, 0.60);
-    border: 1px solid rgba(65, 72, 104, 0.48);
+    margin: 4px 3px;
+    border-radius: 7px;
+    background-color: rgba(31, 35, 53, 0.72);
+    border: 1px solid rgba(65, 72, 104, 0.52);
     color: @accent;
 }
 
