@@ -1,40 +1,63 @@
 @import "/usr/lib/hyprwhspr/config/waybar/hyprwhspr-style.css";
+
+@define-color bg #16161f;
+@define-color panel #1f2335;
+@define-color panel2 #24283b;
+@define-color border #414868;
+@define-color text #c0caf5;
+@define-color muted #a9b1d6;
+@define-color faint #565f89;
+@define-color accent #7dcfff;
+@define-color blue #7aa2f7;
+@define-color green #9ece6a;
+@define-color purple #bb9af7;
+@define-color yellow #e0af68;
+@define-color orange #ff9e64;
+@define-color red #f7768e;
+
 * {
-    font-family: "Symbols Nerd Font", sans-serif;
+    font-family: "FiraCode Nerd Font", "Symbols Nerd Font", sans-serif;
     font-size: 14px;
+    border: none;
+    min-height: 0;
 }
 
 window#waybar {
-    background-color: rgba(26, 27, 38, 0.7);
-    color: #c0caf5;
-    border-bottom: 2px solid rgba(65, 72, 104, 0.5);
+    background-color: rgba(22, 22, 31, 0.86);
+    color: @text;
+    border-bottom: 1px solid rgba(125, 207, 255, 0.18);
 }
 
 /* Workspaces */
 #workspaces button {
-    padding: 0 8px;
-    color: #565f89;
+    margin: 4px 2px;
+    padding: 0 9px;
+    color: @faint;
     background: transparent;
-    border: none;
-    border-radius: 0;
+    border-radius: 999px;
+    transition: all 160ms ease-out;
 }
 
 #workspaces button:hover {
-    background: rgba(122, 162, 247, 0.2);
+    background: rgba(65, 72, 104, 0.42);
+    color: @muted;
 }
 
 #workspaces button.active {
-    color: #7aa2f7;
-    box-shadow: inset 0 -2px #7aa2f7;
+    color: @bg;
+    background: linear-gradient(135deg, @accent, @blue);
+    box-shadow: 0 0 18px rgba(125, 207, 255, 0.20);
 }
 
 #workspaces button.urgent {
-    color: #f7768e;
+    color: @red;
+    background: rgba(247, 118, 142, 0.14);
 }
 
 /* Window title */
 #window {
-    color: #a9b1d6;
+    color: @muted;
+    font-weight: 500;
 }
 
 /* Right-side modules */
@@ -49,11 +72,13 @@ window#waybar {
 #temperature,
 #clock,
 #tray,
-#custom-updates {
+#custom-updates,
+#custom-power {
     padding: 0 10px;
     margin: 4px 2px;
-    border-radius: 6px;
-    background-color: rgba(65, 72, 104, 0.3);
+    border-radius: 999px;
+    background-color: rgba(36, 40, 59, 0.60);
+    border: 1px solid rgba(65, 72, 104, 0.48);
 }
 
 #network,
@@ -61,9 +86,10 @@ window#waybar {
 #custom-dualsense {
     padding: 0 10px;
     margin: 4px 2px;
-    border-radius: 6px;
-    background-color: rgba(65, 72, 104, 0.3);
-    color: #7dcfff;
+    border-radius: 999px;
+    background-color: rgba(36, 40, 59, 0.60);
+    border: 1px solid rgba(65, 72, 104, 0.48);
+    color: @accent;
 }
 
 /* Fix width for modules with variable text */
@@ -74,15 +100,15 @@ window#waybar {
 #custom-dualsense {
     min-width: 72px;
     padding: 0 6px;
-    color: #7aa2f7;
+    color: @blue;
 }
 
 #custom-dualsense.warning {
-    color: #e0af68;
+    color: @yellow;
 }
 
 #custom-dualsense.critical {
-    color: #f7768e;
+    color: @red;
 }
 
 #custom-cpu {
@@ -94,68 +120,70 @@ window#waybar {
 }
 
 #idle_inhibitor.activated {
-    background-color: rgba(122, 162, 247, 0.3);
-    color: #7aa2f7;
+    background-color: rgba(125, 207, 255, 0.16);
+    border-color: rgba(125, 207, 255, 0.36);
+    color: @accent;
 }
 
 #pulseaudio {
-    color: #7dcfff;
+    color: @accent;
 }
 
 #custom-media {
-    color: #f7768e;
+    color: @purple;
 }
 
 #pulseaudio.muted {
-    color: #565f89;
+    color: @faint;
 }
 
 #custom-cpu {
-    color: #9ece6a;
+    color: @green;
 }
 
 #memory {
-    color: #bb9af7;
+    color: @purple;
 }
 
 #disk {
-    color: #7dcfff;
+    color: @accent;
 }
 
 #custom-disk-memory {
-    color: #7dcfff;
+    color: @accent;
 }
 
 #temperature {
-    color: #e0af68;
+    color: @yellow;
 }
 
 #temperature.critical {
-    color: #f7768e;
+    color: @red;
 }
 
 #clock {
-    color: #7aa2f7;
+    color: @blue;
+    font-weight: 700;
 }
 
 #custom-updates {
-    color: #e0af68;
+    color: @yellow;
 }
 
 #custom-updates.updates {
-    color: #ff9e64;
+    color: @orange;
 }
 
 #custom-updates.updated {
-    color: #9ece6a;
+    color: @green;
 }
 
 #tray {
-    color: #c0caf5;
+    color: @text;
 }
 
 #custom-power {
-    color: #f7768e;
+    color: @red;
     font-size: 16px;
     margin-right: 12px;
 }
