@@ -138,21 +138,157 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 # OpenCode TUI instances attach to it, while OpenChamber uses it as external backend.
 _opencode_shared_server_url="http://127.0.0.1:4096"
 
-_opencode_ensure_shared_server() {
+_opencode_shared_server_pid() {
+  local _pid
+
+  for _pid in ${(f)"$(pgrep -f '/usr/bin/opencode serve --hostname 127\.0\.0\.1 --port 4096' 2>/dev/null)"}; do
+    [[ -r "/proc/$_pid/cmdline" ]] || continue
+
+    local _cmdline
+    _cmdline=$(tr '\0' ' ' < "/proc/$_pid/cmdline" 2>/dev/null)
+
+    if [[ "$_cmdline" == "/usr/bin/opencode serve --hostname 127.0.0.1 --port 4096 " ]]; then
+      print -r -- "$_pid"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+_opencode_shared_server_binary_version() {
+  local _pid="$1"
+
+  strings "/proc/$_pid/exe" 2>/dev/null \
+    | sed -n 's/.*--user-agent=opencode\/\([0-9][0-9.]*\).*/\1/p' \
+    | tail -n 1
+}
+
+_opencode_shared_server_stale_reason() {
+  local _pid
+  _pid=$(_opencode_shared_server_pid) || return 1
+
+  local _exe
+  _exe=$(readlink -f "/proc/$_pid/exe" 2>/dev/null)
+
+  if [[ -z "$_exe" || "$_exe" == *' (deleted)'* ]]; then
+    print -r -- "deleted executable"
+    return 0
+  fi
+
+  if [[ "$_exe" != "/usr/bin/opencode" ]]; then
+    print -r -- "unexpected executable: $_exe"
+    return 0
+  fi
+
+  local _current_version _server_version
+  _current_version=$(/usr/bin/opencode --version 2>/dev/null)
+  _server_version=$(_opencode_shared_server_binary_version "$_pid")
+
+  if [[ -n "$_current_version" && -n "$_server_version" && "$_current_version" != "$_server_version" ]]; then
+    print -r -- "version mismatch: server $_server_version, binary $_current_version"
+    return 0
+  fi
+
+  return 1
+}
+
+_opencode_start_shared_server() {
   local _url="http://127.0.0.1:4096"
   local _health="$_url/session"
   local _state_dir="$HOME/.local/state/opencode"
 
-  if ! curl -fsS "$_health" >/dev/null 2>&1; then
-    mkdir -p "$_state_dir"
-    setsid -f /usr/bin/opencode serve --hostname 127.0.0.1 --port 4096 \
-      > "$_state_dir/server-4096.log" 2>&1 < /dev/null
+  mkdir -p "$_state_dir"
+  setsid -f /usr/bin/opencode serve --hostname 127.0.0.1 --port 4096 \
+    > "$_state_dir/server-4096.log" 2>&1 < /dev/null
 
-    local _i
-    for _i in {1..30}; do
-      curl -fsS "$_health" >/dev/null 2>&1 && break
-      sleep 0.1
-    done
+  local _i
+  for _i in {1..30}; do
+    curl -fsS "$_health" >/dev/null 2>&1 && return 0
+    sleep 0.1
+  done
+
+  return 1
+}
+
+_opencode_stop_shared_server() {
+  local _pid
+  _pid=$(_opencode_shared_server_pid) || return 0
+
+  kill "$_pid" 2>/dev/null || return 0
+
+  local _i
+  for _i in {1..30}; do
+    kill -0 "$_pid" 2>/dev/null || return 0
+    sleep 0.1
+  done
+
+  return 1
+}
+
+_opencode_extract_session_arg() {
+  local _arg
+  local _next_is_session=0
+
+  for _arg in "$@"; do
+    if (( _next_is_session )); then
+      print -r -- "$_arg"
+      return 0
+    fi
+
+    case "$_arg" in
+      -s|--session)
+        _next_is_session=1
+        ;;
+      --session=*)
+        print -r -- "${_arg#--session=}"
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+_opencode_wait_for_session() {
+  local _session_id="$1"
+  local _i
+
+  for _i in {1..100}; do
+    if _opencode_shared_server_has_session "$_session_id"; then
+      return 0
+    fi
+
+    sleep 0.1
+  done
+
+  return 1
+}
+
+_opencode_shared_server_has_session() {
+  local _session_id="$1"
+  local _sessions
+
+  [[ -n "$_session_id" ]] || return 1
+
+  _sessions=$(curl -fsS "$_opencode_shared_server_url/session" 2>/dev/null) || return 1
+  [[ "$_sessions" == *"\"id\":\"$_session_id\""* ]]
+}
+
+_opencode_ensure_shared_server() {
+  local _url="http://127.0.0.1:4096"
+  local _health="$_url/session"
+
+  if ! curl -fsS "$_health" >/dev/null 2>&1; then
+    _opencode_start_shared_server
+    return
+  fi
+
+  local _stale_reason
+  if _stale_reason=$(_opencode_shared_server_stale_reason); then
+    print -r -- "opencode: restarting stale shared server ($_stale_reason)" >&2
+    _opencode_stop_shared_server || return 1
+    _opencode_start_shared_server
   fi
 }
 
@@ -167,11 +303,13 @@ openchamber() {
       ;;
   esac
 
-  _opencode_ensure_shared_server
+  _opencode_ensure_shared_server || return 1
   OPENCODE_HOST="$_opencode_shared_server_url" \
     OPENCODE_SKIP_START=true \
     fnm exec --using=22 "$HOME/.local/bin/openchamber" "$@"
 }
+
+alias openchamber-update='fnm exec --using v22.22.3 npm install -g @openchamber/web@latest'
 
 openchamber-mobile() {
   local _tailscale_ip
@@ -185,11 +323,29 @@ openchamber-mobile() {
   openchamber --host "$_tailscale_ip" "$@"
 }
 
+opencode-stop() {
+  local _pid
+  _pid=$(_opencode_shared_server_pid) || {
+    print -r -- "opencode-stop: shared server is not running"
+    return 0
+  }
+
+  print -r -- "opencode-stop: stopping shared server pid $_pid"
+
+  if ! _opencode_stop_shared_server; then
+    print -r -- "opencode-stop: failed to stop shared server pid $_pid" >&2
+    return 1
+  fi
+
+  print -r -- "opencode-stop: stopped"
+}
+
 # Direct subcommands still bypass the wrapper and go to the real binary.
 opencode() {
   local _cmd="$1"
   local _arg
   local _has_dir_arg=0
+  local _session_id
 
   case "$_cmd" in
     completion|acp|mcp|attach|run|debug|providers|auth|agent|upgrade|uninstall|serve|web|models|stats|export|import|github|pr|session|plugin|plug|db)
@@ -198,7 +354,17 @@ opencode() {
       ;;
   esac
 
-  _opencode_ensure_shared_server
+  _opencode_ensure_shared_server || return 1
+
+  # `opencode attach -s <id>` only works for sessions already loaded by the
+  # shared server. Older/local sessions can exist in `opencode session list`
+  # without being exposed by this server, so resume those through the real
+  # binary instead of turning a valid session into "not ready on shared server".
+  _session_id=$(_opencode_extract_session_arg "$@") || _session_id=""
+  if [[ -n "$_session_id" ]] && ! _opencode_shared_server_has_session "$_session_id"; then
+    /usr/bin/opencode "$@"
+    return
+  fi
 
   for _arg in "$@"; do
     if [[ "$_arg" == --dir || "$_arg" == --dir=* ]]; then
