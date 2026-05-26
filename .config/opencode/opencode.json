@@ -100,11 +100,13 @@
       "command": [
         "uvx",
         "--from",
-        "jcodemunch-mcp[zhipu]",
+        "git+https://github.com/jgravelle/jcodemunch-mcp",
+        "--with",
+        "openai",
         "jcodemunch-mcp"
       ],
       "enabled": true,
-      "timeout": 10000,
+      "timeout": 30000,
       "environment": {
         "ZHIPUAI_API_KEY": "{env:ZHIPUAI_API_KEY}",
         "JCODEMUNCH_SUMMARIZER_PROVIDER": "glm",
@@ -118,6 +120,9 @@
       "oauth": false,
       "enabled": true
     }
+  },
+  "permission": {
+    "webfetch": "deny"
   },
   "agent": {
     "explore": {
